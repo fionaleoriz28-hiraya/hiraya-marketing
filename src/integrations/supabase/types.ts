@@ -14,7 +14,351 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ad_campaigns: {
+        Row: {
+          ad_copy: string | null
+          budget: number | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          objective: string | null
+          platform: string
+          status: string
+          targeting: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ad_copy?: string | null
+          budget?: number | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          objective?: string | null
+          platform: string
+          status?: string
+          targeting?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ad_copy?: string | null
+          budget?: number | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          objective?: string | null
+          platform?: string
+          status?: string
+          targeting?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      agent_requests: {
+        Row: {
+          contact: string
+          created_at: string
+          details: string | null
+          id: string
+          preferred_time: string | null
+          status: string
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          contact: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          preferred_time?: string | null
+          status?: string
+          topic: string
+          user_id: string
+        }
+        Update: {
+          contact?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          preferred_time?: string | null
+          status?: string
+          topic?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      assistant_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      audits: {
+        Row: {
+          answers: Json
+          created_at: string
+          gaps: Json
+          id: string
+          recommendations: Json
+          score: number
+          strengths: Json
+          summary: string | null
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          gaps?: Json
+          id?: string
+          recommendations?: Json
+          score?: number
+          strengths?: Json
+          summary?: string | null
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          gaps?: Json
+          id?: string
+          recommendations?: Json
+          score?: number
+          strengths?: Json
+          summary?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      businesses: {
+        Row: {
+          audience: string | null
+          created_at: string
+          goals: string | null
+          id: string
+          industry: string | null
+          location: string | null
+          monthly_budget: number | null
+          name: string
+          platforms: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audience?: string | null
+          created_at?: string
+          goals?: string | null
+          id?: string
+          industry?: string | null
+          location?: string | null
+          monthly_budget?: number | null
+          name: string
+          platforms?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audience?: string | null
+          created_at?: string
+          goals?: string | null
+          id?: string
+          industry?: string | null
+          location?: string | null
+          monthly_budget?: number | null
+          name?: string
+          platforms?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      content_items: {
+        Row: {
+          caption: string
+          created_at: string
+          hashtags: string | null
+          id: string
+          platform: string
+          scheduled_date: string
+          status: string
+          theme: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          caption?: string
+          created_at?: string
+          hashtags?: string | null
+          id?: string
+          platform: string
+          scheduled_date?: string
+          status?: string
+          theme?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          caption?: string
+          created_at?: string
+          hashtags?: string | null
+          id?: string
+          platform?: string
+          scheduled_date?: string
+          status?: string
+          theme?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      growth_snapshots: {
+        Row: {
+          created_at: string
+          followers: number
+          id: string
+          leads: number
+          period: string
+          platform: string
+          reach: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          followers?: number
+          id?: string
+          leads?: number
+          period: string
+          platform: string
+          reach?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          followers?: number
+          id?: string
+          leads?: number
+          period?: string
+          platform?: string
+          reach?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      posts: {
+        Row: {
+          comments: number
+          created_at: string
+          format: string
+          id: string
+          likes: number
+          platform: string
+          posted_at: string
+          reach: number
+          shares: number
+          title: string
+          user_id: string
+        }
+        Insert: {
+          comments?: number
+          created_at?: string
+          format?: string
+          id?: string
+          likes?: number
+          platform: string
+          posted_at?: string
+          reach?: number
+          shares?: number
+          title: string
+          user_id: string
+        }
+        Update: {
+          comments?: number
+          created_at?: string
+          format?: string
+          id?: string
+          likes?: number
+          platform?: string
+          posted_at?: string
+          reach?: number
+          shares?: number
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      strategies: {
+        Row: {
+          created_at: string
+          details: Json
+          id: string
+          summary: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          id?: string
+          summary?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          id?: string
+          summary?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
