@@ -58,4 +58,4 @@ Seven pages are still placeholders. This builds them all on the accounts, saved 
 
 ## Out of scope
 
-Live social account syncing, real ad publishing, real-time human chat, team members, payments.
+- Live social account syncing, real ad publishing, real-time human chat, team members, payments.
