@@ -13,11 +13,15 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         WebView webView = new WebView(this);
         webView.setWebViewClient(new WebViewClient());
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.loadUrl("https://raw.githubusercontent.com/fionaleoriz28-hiraya/hiraya-marketing/main/index.html");
+        webView.getSettings().setAllowFileAccess(true);
+        webView.getSettings().setAllowContentAccess(true);
+        webView.loadUrl("file:///android_asset/index.html");
+
         setContentView(webView);
     }
 }
