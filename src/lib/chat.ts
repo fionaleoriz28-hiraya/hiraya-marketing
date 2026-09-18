@@ -130,6 +130,7 @@ export function useAgentInbox() {
 }
 
 export function useSetMode() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -151,7 +152,7 @@ export function useSetMode() {
       if (systemNote) {
         const { error: messageError } = await supabase
           .from("chat_messages")
-          .insert({ conversation_id: conversationId, sender: "system", content: systemNote });
+          .insert({ conversation_id: conversationId, sender: "system", content: systemNote, ...(user ? { sender_id: user.id } : {}) });
         if (messageError) throw messageError;
       }
     },
