@@ -2,7 +2,7 @@ import os
 from datetime import date, datetime
 from functools import wraps
 
-from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for
+from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for, send_from_directory
 
 try:
     from supabase import create_client
@@ -53,6 +53,10 @@ def db_delete(table, row_id):
 @app.context_processor
 def inject_globals():
     return {"user": current_user(), "platforms": PLATFORMS}
+
+@app.route("/hero-shop.jpg")
+def hero_shop():
+    return send_from_directory(os.path.join(os.path.dirname(__file__), "..", "src", "assets"), "hero-shop.jpg")
 
 @app.route("/")
 def index():
