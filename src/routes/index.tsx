@@ -91,12 +91,11 @@ function Landing() {
                 From vision to visibility
               </p>
               <h1 className="mt-4 font-display text-4xl leading-[1.05] font-semibold text-foreground sm:text-5xl">
-                Marketing clarity for small businesses.
+                Turn your marketing effort into measurable growth.
               </h1>
               <p className="mt-5 max-w-lg text-base leading-relaxed text-muted-foreground">
-                Hiraya turns scattered social media effort into a plan you can follow: know how
-                visible your brand is, what your audience responds to, and exactly what to post and
-                promote next.
+                Hiraya gives small businesses a practical marketing workspace to understand what is working,
+                plan what comes next, and turn consistent marketing activity into clearer customer growth.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button asChild size="lg">
