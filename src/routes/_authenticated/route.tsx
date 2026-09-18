@@ -15,6 +15,7 @@ import {
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useIsAgent } from "@/lib/chat";
 
 export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
@@ -33,6 +34,7 @@ const nav = [
 
 function AuthenticatedLayout() {
   const { user, loading, signOut } = useAuth();
+  const { data: isAgent } = useIsAgent();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
@@ -59,7 +61,7 @@ function AuthenticatedLayout() {
           </p>
         </Link>
         <nav className="mt-8 space-y-1">
-          {nav.map((item) => (
+          {visibleNav.map((item) => (
             <Link
               key={item.to}
               to={item.to}
