@@ -37,6 +37,7 @@ function AuthenticatedLayout() {
   const { data: isAgent } = useIsAgent();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const visibleNav = isAgent ? [...nav, { to: "/agent" as const, label: "Live Agent", icon: MessageCircle }] : nav;
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -109,7 +110,7 @@ function AuthenticatedLayout() {
 
       <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-card/95 backdrop-blur lg:hidden">
         <div className="flex overflow-x-auto">
-          {nav.map((item) => (
+          {visibleNav.map((item) => (
             <Link
               key={item.to}
               to={item.to}
