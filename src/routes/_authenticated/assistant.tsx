@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Headset, Send, Sparkles } from "lucide-react";
+import { Headset, Send, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { ChatThread } from "@/components/chat-thread";
@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { askAssistant } from "@/lib/ai.functions";
 import { friendlyError, toAiBusiness, useBusiness } from "@/lib/business";
 import { useMessages, useMyConversation, useSendMessage, useSetMode } from "@/lib/chat";
+import { useInsertRow, useRows, type AgentRequest } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/assistant")({
   head: () => ({
@@ -46,10 +47,18 @@ function AssistantPage() {
   const { data: messages = [] } = useMessages(conversation?.id);
   const sendMessage = useSendMessage();
   const setMode = useSetMode();
+  const { data: requests = [] } = useRows<AgentRequest>("agent_requests", "created_at");
+  const insertRequest = useInsertRow("agent_requests");
   const ask = useServerFn(askAssistant);
 
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [showAgentForm, setShowAgentForm] = useState(false);
+  const [topic, setTopic] = useState("");
+  const [preferredTime, setPreferredTime] = useState("");
+  const [contact, setContact] = useState("");
+  const [details, setDetails] = useState("");
+  const [requestingAgent, setRequestingAgent] = useState(false);
 
   const withAgent = conversation?.mode === "agent";
   const agentJoined = withAgent && !!conversation?.agent_id;
@@ -154,13 +163,13 @@ function AssistantPage() {
               Back to AI answers
             </Button>
           ) : (
-            <Button variant="secondary" size="sm" onClick={handover} disabled={setMode.isPending}>
+            <Button variant="secondary" size="sm" onClick={() => setShowAgentForm(true)} disabled={setMode.isPending}>
               <Headset className="size-4" /> Talk to a person
             </Button>
           )}
         </div>
 
-        <div className="max-h-[55vh] min-h-[18rem] overflow-y-auto px-5 py-5">
+        {showAgentForm && !withAgent ? (\n          <div className="border-b border-border bg-secondary/40 px-5 py-5">\n            <div className="flex items-start justify-between gap-3">\n              <div>\n                <h2 className="font-display text-lg font-semibold">Talk to a live agent</h2>\n                <p className="mt-1 text-sm text-muted-foreground">Tell us what you need so a Hiraya specialist can pick up the conversation with context.</p>\n              </div>\n              <Button variant="ghost" size="icon" onClick={() => setShowAgentForm(false)} aria-label="Close live agent form"><X className="size-4" /></Button>\n            </div>\n            <div className="mt-4 grid gap-4 md:grid-cols-2">\n              <div className="space-y-2"><label htmlFor="agent-topic" className="text-sm font-medium">Topic *</label><input id="agent-topic" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. Facebook ads" /></div>\n              <div className="space-y-2"><label htmlFor="agent-contact" className="text-sm font-medium">Contact *</label><input id="agent-contact" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={contact} onChange={(e) => setContact(e.target.value)} placeholder="Email, phone, or Messenger" /></div>\n              <div className="space-y-2"><label htmlFor="agent-time" className="text-sm font-medium">Preferred time</label><input id="agent-time" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={preferredTime} onChange={(e) => setPreferredTime(e.target.value)} placeholder="e.g. Weekdays 2–5 PM" /></div>\n              <div className="space-y-2 md:col-span-2"><label htmlFor="agent-details" className="text-sm font-medium">Details</label><textarea id="agent-details" rows={3} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={details} onChange={(e) => setDetails(e.target.value)} placeholder="What would you like the specialist to help with?" /></div>\n            </div>\n            <Button className="mt-4" onClick={() => void handover()} disabled={requestingAgent}><Headset className="mr-2 size-4" />{requestingAgent ? "Sending request…" : "Request live agent"}</Button>\n          </div>\n        ) : null}\n\n        <div className="max-h-[55vh] min-h-[18rem] overflow-y-auto px-5 py-5">
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Opening your chat…</p>
           ) : (
@@ -216,7 +225,7 @@ function AssistantPage() {
         </form>
       </div>
 
-      {withAgent && !agentJoined && (
+      {!withAgent && requests.length > 0 && (\n        <section className="mt-4 card-soft p-5">\n          <h2 className="font-display text-base font-semibold">Your live-agent requests</h2>\n          <div className="mt-3 space-y-2">\n            {requests.slice(0, 5).map((request) => (\n              <div key={request.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3 text-sm">\n                <div><p className="font-medium">{request.topic}</p><p className="mt-1 text-xs text-muted-foreground">{new Date(request.created_at).toLocaleString()}</p></div>\n                <span className="rounded-full bg-secondary px-2.5 py-1 text-xs capitalize">{request.status}</span>\n              </div>\n            ))}\n          </div>\n        </section>\n      )}\n\n      {withAgent && !agentJoined && (
         <p className="mt-3 text-xs text-muted-foreground">
           Specialists reply during business hours. Anything you write now will be waiting for them.
         </p>
