@@ -12,9 +12,24 @@ except ImportError:
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "change-me-in-production")
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_PUBLISHABLE_KEY") or os.getenv("SUPABASE_ANON_KEY")
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY) if create_client and SUPABASE_URL and SUPABASE_KEY else None
+SUPABASE_URL = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
+# Support the current Supabase publishable key plus legacy deployment names.
+SUPABASE_KEY = (
+    os.getenv("SUPABASE_PUBLISHABLE_KEY")
+    or os.getenv("SUPABASE_ANON_KEY")
+    or os.getenv("SUPABASE_KEY")
+    or ""
+).strip()
+
+def build_supabase_client():
+    if not create_client or not SUPABASE_URL or not SUPABASE_KEY:
+        return None
+    try:
+        return create_client(SUPABASE_URL, SUPABASE_KEY)
+    except Exception:
+        return None
+
+supabase = build_supabase_client()
 
 PLATFORMS = ["Facebook", "Instagram", "TikTok", "YouTube", "X", "LinkedIn", "Google"]
 FORMATS = ["Reel", "Carousel", "Photo", "Story", "Video", "Text"]
@@ -42,7 +57,7 @@ def db_select(table, order=None, limit=None):
 
 def db_insert(table, values):
     if not supabase:
-        raise RuntimeError("Supabase is not configured. Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY.")
+        raise RuntimeError("Supabase is not configured. Render must define SUPABASE_URL and one of SUPABASE_PUBLISHABLE_KEY, SUPABASE_ANON_KEY, or SUPABASE_KEY.")
     values = {**values, "user_id": current_user()["id"]}
     return supabase.table(table).insert(values).execute().data
 
@@ -71,7 +86,7 @@ def auth():
         full_name = request.form.get("full_name", "").strip()
         try:
             if not supabase:
-                raise RuntimeError("Supabase is not configured.")
+                raise RuntimeError("Supabase is not configured. Render must define SUPABASE_URL and one of SUPABASE_PUBLISHABLE_KEY, SUPABASE_ANON_KEY, or SUPABASE_KEY.")
             if mode == "signup":
                 result = supabase.auth.sign_up({
                     "email": email,
