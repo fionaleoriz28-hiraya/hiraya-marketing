@@ -194,6 +194,41 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender: string
+          sender_id: string | null
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender: string
+          sender_id?: string | null
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender?: string
+          sender_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_items: {
         Row: {
           caption: string
@@ -228,6 +263,42 @@ export type Database = {
           scheduled_date?: string
           status?: string
           theme?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      conversations: {
+        Row: {
+          agent_id: string | null
+          created_at: string
+          id: string
+          last_message_at: string
+          mode: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          mode?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          mode?: string
+          status?: string
+          subject?: string
           updated_at?: string
           user_id?: string
         }
@@ -359,15 +430,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "agent" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -494,6 +592,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["agent", "admin"],
+    },
   },
 } as const
