@@ -106,16 +106,35 @@ function AssistantPage() {
 
   async function handover() {
     if (!conversation) return;
+    if (!topic.trim() || !contact.trim()) {
+      toast.error("Please add a topic and contact detail.");
+      return;
+    }
+    setRequestingAgent(true);
     try {
+      await insertRequest.mutateAsync({
+        topic: topic.trim(),
+        preferred_time: preferredTime.trim() || null,
+        contact: contact.trim(),
+        details: details.trim() || null,
+        status: "pending",
+      });
       await setMode.mutateAsync({
         conversationId: conversation.id,
         mode: "agent",
         systemNote:
           "This chat has been passed to a Hiraya specialist. Someone will reply here shortly — your messages stay in this thread.",
       });
-      toast.success("A specialist has been notified.");
+      setShowAgentForm(false);
+      setTopic("");
+      setPreferredTime("");
+      setContact("");
+      setDetails("");
+      toast.success("Your live-agent request was sent.");
     } catch (error) {
       toast.error(friendlyError(error));
+    } finally {
+      setRequestingAgent(false);
     }
   }
 
@@ -169,7 +188,26 @@ function AssistantPage() {
           )}
         </div>
 
-        {showAgentForm && !withAgent ? (\n          <div className="border-b border-border bg-secondary/40 px-5 py-5">\n            <div className="flex items-start justify-between gap-3">\n              <div>\n                <h2 className="font-display text-lg font-semibold">Talk to a live agent</h2>\n                <p className="mt-1 text-sm text-muted-foreground">Tell us what you need so a Hiraya specialist can pick up the conversation with context.</p>\n              </div>\n              <Button variant="ghost" size="icon" onClick={() => setShowAgentForm(false)} aria-label="Close live agent form"><X className="size-4" /></Button>\n            </div>\n            <div className="mt-4 grid gap-4 md:grid-cols-2">\n              <div className="space-y-2"><label htmlFor="agent-topic" className="text-sm font-medium">Topic *</label><input id="agent-topic" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. Facebook ads" /></div>\n              <div className="space-y-2"><label htmlFor="agent-contact" className="text-sm font-medium">Contact *</label><input id="agent-contact" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={contact} onChange={(e) => setContact(e.target.value)} placeholder="Email, phone, or Messenger" /></div>\n              <div className="space-y-2"><label htmlFor="agent-time" className="text-sm font-medium">Preferred time</label><input id="agent-time" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={preferredTime} onChange={(e) => setPreferredTime(e.target.value)} placeholder="e.g. Weekdays 2–5 PM" /></div>\n              <div className="space-y-2 md:col-span-2"><label htmlFor="agent-details" className="text-sm font-medium">Details</label><textarea id="agent-details" rows={3} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={details} onChange={(e) => setDetails(e.target.value)} placeholder="What would you like the specialist to help with?" /></div>\n            </div>\n            <Button className="mt-4" onClick={() => void handover()} disabled={requestingAgent}><Headset className="mr-2 size-4" />{requestingAgent ? "Sending request…" : "Request live agent"}</Button>\n          </div>\n        ) : null}\n\n        <div className="max-h-[55vh] min-h-[18rem] overflow-y-auto px-5 py-5">
+        {showAgentForm && !withAgent ? (
+          <div className="border-b border-border bg-secondary/40 px-5 py-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="font-display text-lg font-semibold">Talk to a live agent</h2>
+                <p className="mt-1 text-sm text-muted-foreground">Tell us what you need so a Hiraya specialist can pick up the conversation with context.</p>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setShowAgentForm(false)} aria-label="Close live agent form"><X className="size-4" /></Button>
+            </div>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <div className="space-y-2"><label htmlFor="agent-topic" className="text-sm font-medium">Topic *</label><input id="agent-topic" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. Facebook ads" /></div>
+              <div className="space-y-2"><label htmlFor="agent-contact" className="text-sm font-medium">Contact *</label><input id="agent-contact" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={contact} onChange={(e) => setContact(e.target.value)} placeholder="Email, phone, or Messenger" /></div>
+              <div className="space-y-2"><label htmlFor="agent-time" className="text-sm font-medium">Preferred time</label><input id="agent-time" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={preferredTime} onChange={(e) => setPreferredTime(e.target.value)} placeholder="e.g. Weekdays 2–5 PM" /></div>
+              <div className="space-y-2 md:col-span-2"><label htmlFor="agent-details" className="text-sm font-medium">Details</label><textarea id="agent-details" rows={3} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={details} onChange={(e) => setDetails(e.target.value)} placeholder="What would you like the specialist to help with?" /></div>
+            </div>
+            <Button className="mt-4" onClick={() => void handover()} disabled={requestingAgent}><Headset className="mr-2 size-4" />{requestingAgent ? "Sending request…" : "Request live agent"}</Button>
+          </div>
+        ) : null}
+
+        <div className="max-h-[55vh] min-h-[18rem] overflow-y-auto px-5 py-5">
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Opening your chat…</p>
           ) : (
@@ -225,7 +263,21 @@ function AssistantPage() {
         </form>
       </div>
 
-      {!withAgent && requests.length > 0 && (\n        <section className="mt-4 card-soft p-5">\n          <h2 className="font-display text-base font-semibold">Your live-agent requests</h2>\n          <div className="mt-3 space-y-2">\n            {requests.slice(0, 5).map((request) => (\n              <div key={request.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3 text-sm">\n                <div><p className="font-medium">{request.topic}</p><p className="mt-1 text-xs text-muted-foreground">{new Date(request.created_at).toLocaleString()}</p></div>\n                <span className="rounded-full bg-secondary px-2.5 py-1 text-xs capitalize">{request.status}</span>\n              </div>\n            ))}\n          </div>\n        </section>\n      )}\n\n      {withAgent && !agentJoined && (
+      {!withAgent && requests.length > 0 && (
+        <section className="mt-4 card-soft p-5">
+          <h2 className="font-display text-base font-semibold">Your live-agent requests</h2>
+          <div className="mt-3 space-y-2">
+            {requests.slice(0, 5).map((request) => (
+              <div key={request.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3 text-sm">
+                <div><p className="font-medium">{request.topic}</p><p className="mt-1 text-xs text-muted-foreground">{new Date(request.created_at).toLocaleString()}</p></div>
+                <span className="rounded-full bg-secondary px-2.5 py-1 text-xs capitalize">{request.status}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {withAgent && !agentJoined && (
         <p className="mt-3 text-xs text-muted-foreground">
           Specialists reply during business hours. Anything you write now will be waiting for them.
         </p>
