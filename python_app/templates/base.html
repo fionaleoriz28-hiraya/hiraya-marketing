@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Hiraya Marketing — From Vision to Visibility{% endblock %}</title>
+  <meta name="description" content="Hiraya Marketing helps small businesses turn scattered social media effort into a practical plan.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="{{ url_for('index') }}"><strong>Hiraya</strong> <span>Marketing</span></a>
+  {% if user %}
+  <nav class="nav">
+    <a href="{{ url_for('dashboard') }}">Dashboard</a><a href="{{ url_for('audit') }}">Audit</a><a href="{{ url_for('engagement') }}">Engagement</a><a href="{{ url_for('growth') }}">Growth</a><a href="{{ url_for('planner') }}">Planner</a><a href="{{ url_for('strategy') }}">Strategy</a><a href="{{ url_for('assistant') }}">Assistant</a><a href="{{ url_for('profile') }}">Profile</a><a href="{{ url_for('logout') }}">Sign out</a>
+  </nav>
+  {% else %}<a class="btn btn-ghost" href="{{ url_for('auth') }}">Sign in</a>{% endif %}
+</header>
+{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-wrap">{% for category,message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
+<main class="container">{% block content %}{% endblock %}</main>
+<footer class="footer">Hiraya Marketing — From vision to visibility.</footer>
+</body>
+</html>
