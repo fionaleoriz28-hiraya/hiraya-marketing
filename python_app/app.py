@@ -52,7 +52,7 @@ def db_delete(table, row_id):
 
 @app.context_processor
 def inject_globals():
-    return {"user": current_user(), "platforms": PLATFORMS}
+    return {"user": current_user(), "platforms": PLATFORMS, "today": date.today().isoformat()}
 
 @app.route("/hero-shop.jpg")
 def hero_shop():
