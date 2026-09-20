@@ -1,6 +1,6 @@
 # Hiraya Marketing
 
-AN APPLICATION NAMED HIRAYA MARKETING WITH A TAGLINE OF FROM VISION TO VISIBILITY THAT CAN BE USED BY SMALL BUSINESSES TO HELP THEM WITH DIGITAL MARKETING THE APP WILL BE USED FOR BRAND AWARENESS AUDIT, ENGAGEMENT ANALYSIS, GROWTH TRACKING, AND IT CAN ALSO HELP THEM PLAN CONTENTS FOR THEIR SOCIAL MEDIA PLATFORMS ++ HELP THEM WITH MARKETING STRATEGIES AND PAID ADS
+Hiraya Marketing — From Vision to Visibility — is a digital marketing workspace for small businesses. It supports brand awareness audits, engagement analysis, growth tracking, social media content planning, marketing strategy, and paid ads guidance.
 
 This project was built with [Lovable](https://lovable.dev).
 
@@ -16,11 +16,30 @@ Continue developing this project in the [Lovable editor](https://lovable.dev/pro
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+This TypeScript/TanStack app uses Bun and the committed `bun.lock` lockfile.
+
+Install Bun from [bun.sh](https://bun.sh), then run:
 
 ```sh
 git clone <this-repository-url>
 cd <repository-name>
-npm i
-npm run dev
+bun install --frozen-lockfile
+bun run dev
 ```
+
+### Validate locally
+
+```sh
+bun run lint
+bun run build
+bun run preview
+```
+
+## Built with
+
+- TanStack Start
+- TypeScript
+- React
+- Tailwind CSS
+- Supabase
+- Lovable AI
