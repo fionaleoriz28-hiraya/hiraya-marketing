@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { streamText, Output, NoObjectGeneratedError } from "ai";
+import { generateText, streamText, Output, NoObjectGeneratedError } from "ai";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -233,9 +233,10 @@ export const askAssistant = createServerFn({ method: "POST" })
       .object({
         business: businessSchema,
         history: z
-          .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() }))
+          .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(4000) }))
+          .max(10)
           .default([]),
-        question: z.string().min(1),
+        question: z.string().trim().min(1).max(2000),
       })
       .parse(data),
   )
@@ -245,15 +246,32 @@ export const askAssistant = createServerFn({ method: "POST" })
     );
     const gateway = createLovableAiGatewayProvider(getGatewayKey());
 
-    const result = streamText({
-      model: gateway(HIRAYA_MODEL),
-      system: `${SYSTEM}\n\nThe owner's business:\n${businessBrief(data.business)}\n\nAnswer in at most 220 words. Use short paragraphs or bullet points. If the question needs a human specialist, say so and suggest requesting a live agent.`,
-      messages: [
-        ...data.history.slice(-10).map((m) => ({ role: m.role, content: m.content }) as const),
-        { role: "user" as const, content: data.question },
-      ],
-      providerOptions: { lovable: { reasoningEffort: "low" } },
-    });
+    try {
+      const result = await generateText({
+        model: gateway(HIRAYA_MODEL),
+        system: `${SYSTEM}\n\nThe owner's business:\n${businessBrief(data.business)}\n\nAnswer in at most 220 words. Use short paragraphs or bullet points. If the question needs a human specialist, say so and suggest requesting a live agent.`,
+        messages: [
+          ...data.history.slice(-10).map((m) => ({ role: m.role, content: m.content }) as const),
+          { role: "user" as const, content: data.question },
+        ],
+        maxOutputTokens: 450,
+        providerOptions: { lovable: { reasoningEffort: "low" } },
+      });
 
-    return { answer: await result.text };
+      const answer = result.text.trim();
+      if (!answer) {
+        throw new Error("The AI returned an empty answer. Please try again.");
+      }
+
+      return { answer };
+    } catch (error) {
+      if (NoObjectGeneratedError.isInstance(error)) {
+        throw new Error("The AI could not generate a usable answer. Please try again.");
+      }
+      throw new Error(
+        error instanceof Error
+          ? `AI assistant error: ${error.message}`
+          : "The AI assistant could not answer right now. Please try again.",
+      );
+    }
   });
