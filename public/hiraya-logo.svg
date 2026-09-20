@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-labelledby="title desc">
+<title id="title">Hiraya Marketing</title>
+<desc id="desc">Hiraya Marketing logo with a green hand-drawn mark, peach sunset, waves, birds and tagline From Vision to Visibility.</desc>
+<rect width="1000" height="1000" fill="#fbfaf7"/>
+<circle cx="500" cy="500" r="470" fill="none" stroke="#aeb8ae" stroke-width="5"/>
+<circle cx="500" cy="500" r="458" fill="none" stroke="#c6cdc6" stroke-width="3"/>
+<g fill="none" stroke="#708477" stroke-width="38" stroke-linecap="round" stroke-linejoin="round">
+<path d="M410 150 C394 220 378 290 365 365 C351 446 337 527 323 610"/>
+<path d="M560 126 C545 201 531 277 518 353 C504 438 491 523 478 608"/>
+<path d="M275 390 C350 342 431 314 508 286 C555 269 601 258 655 252"/>
+</g>
+<g fill="none" stroke="#efad8f" stroke-width="8" stroke-linecap="round">
+<path d="M653 183 l0 34"/><path d="M705 198 l-12 30"/><path d="M744 238 l-25 18"/><path d="M761 288 l-31 3"/>
+</g>
+<path d="M650 230 a92 92 0 0 0 -90 92 c0 18 5 34 13 49 l-82 20 c48 8 91 7 129-3 c45-12 76-35 101-68 c-6-52-42-90-71-90z" fill="#e99d91"/>
+<path d="M490 391 C555 387 623 374 685 357 C724 346 756 350 789 363 C749 381 710 394 671 405 C604 423 543 426 490 413 C474 409 474 397 490 391Z" fill="#e99d91"/>
+<path d="M247 514 C309 485 369 488 427 507 C486 527 536 526 589 501 C638 477 696 471 752 491 C699 492 655 504 615 523 C558 551 496 555 434 534 C370 513 313 508 247 514Z" fill="#708477"/>
+<path d="M425 526 C487 546 548 544 605 518 C651 497 697 489 748 492 C704 511 667 528 629 548 C566 580 494 580 425 555 C410 549 410 532 425 526Z" fill="#efad9f"/>
+<g fill="none" stroke="#222b2a" stroke-width="8" stroke-linecap="round">
+<path d="M763 392 q22 -18 44 0"/>
+<path d="M821 418 q20 -17 41 0"/>
+<path d="M780 448 q18 -16 37 0"/>
+</g>
+<path d="M658 178 l7 17 17 7 -17 7 -7 17 -7-17 -17-7 17-7z" fill="#efad8f"/>
+<g text-anchor="middle" fill="#252b2a" font-family="Arial, Helvetica, sans-serif">
+<text x="500" y="690" font-size="58" font-weight="600" letter-spacing="18">MARKETING</text>
+<text x="500" y="760" font-size="31" letter-spacing="10">FROM VISION</text>
+<text x="500" y="810" font-size="31" letter-spacing="10">TO VISIBILITY</text>
+</g>
+</svg>
