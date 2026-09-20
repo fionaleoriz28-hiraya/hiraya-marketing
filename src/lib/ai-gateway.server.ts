@@ -15,7 +15,7 @@ export function createLovableAiGatewayProvider(lovableApiKey: string) {
   });
 }
 
-export const HIRAYA_MODEL = "openai/gpt-6-astra";
+export const HIRAYA_MODEL = process.env["HIRAYA_MODEL"] || "openai/gpt-6-astra";
 
 export function getGatewayKey() {
   const key = process.env["LOVABLE_API_KEY"];
