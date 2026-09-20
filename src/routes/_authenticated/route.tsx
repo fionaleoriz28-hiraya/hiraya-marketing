@@ -4,6 +4,7 @@ import {
   BarChart3,
   CalendarDays,
   Compass,
+  CreditCard,
   Heart,
   LayoutDashboard,
   LogOut,
@@ -28,6 +29,7 @@ const nav = [
   { to: "/strategy", label: "Strategy & Ads", icon: Compass },
   { to: "/assistant", label: "Assistant", icon: MessageCircle },
   { to: "/profile", label: "Business", icon: Store },
+  { to: "/subscription", label: "Subscription", icon: CreditCard },
 ] as const;
 
 function AuthenticatedLayout() {
