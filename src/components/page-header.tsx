@@ -15,6 +15,7 @@ export function StatCard({
   label: string;
   value: string;
   hint?: string;
+  icon?: React.ReactNode;
 }) {
   return (
     <div className="card-soft p-5">

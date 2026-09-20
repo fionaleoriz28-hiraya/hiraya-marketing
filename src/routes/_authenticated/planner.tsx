@@ -39,7 +39,7 @@ function localDate(date: Date) {
 
 function parseDate(value: string) {
   const [y, m, d] = value.slice(0, 10).split("-").map(Number);
-  return new Date(y, (m || 1) - 1, d || 1);
+  return new Date(y ?? 1970, (m || 1) - 1, d || 1);
 }
 
 function monthLabel(date: Date) {
@@ -385,7 +385,7 @@ function PlannerPage() {
                   value={form.status}
                   onChange={(e) => setForm({ ...form, status: e.target.value as Status })}
                 >
-                  {STATUSES.map((status) => <option key={status} value={status}>{status[0].toUpperCase() + status.slice(1)}</option>)}
+                  {STATUSES.map((status) => <option key={status} value={status}>{status.charAt(0).toUpperCase() + status.slice(1)}</option>)}
                 </select>
               </div>
             </div>
