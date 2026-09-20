@@ -1,25 +1,4 @@
 services:
-  # TanStack Start website. The previous blueprint only deployed python_app,
-  # so the TypeScript website had no production start service.
-  - type: web
-    name: hiraya-marketing
-    runtime: node
-    buildCommand: corepack enable && corepack prepare bun@latest --activate && bun install --frozen-lockfile && bun run build
-    startCommand: bun run start
-    envVars:
-      - key: VITE_SUPABASE_URL
-        value: https://eszlrvwnaubkljmdxtss.supabase.co
-      - key: VITE_SUPABASE_PUBLISHABLE_KEY
-        sync: false
-      - key: SUPABASE_URL
-        value: https://eszlrvwnaubkljmdxtss.supabase.co
-      - key: SUPABASE_PUBLISHABLE_KEY
-        sync: false
-      - key: LOVABLE_API_KEY
-        sync: false
-      - key: HIRAYA_MODEL
-        value: gpt-5-mini
-
   - type: web
     name: hiraya-marketing-backend
     runtime: python
