@@ -35,8 +35,8 @@ const SYSTEM = [
 ].join(" ");
 
 async function runStructured<T>(schema: z.ZodType<T>, prompt: string): Promise<T> {
-  const { createLovableAiGatewayProvider, getGatewayKey, HIRAYA_MODEL } = await import("./ai-gateway.server");
-  const gateway = createLovableAiGatewayProvider(getGatewayKey());
+  const { createHirayaAiProvider, getGatewayKey, HIRAYA_MODEL } = await import("./ai-gateway.server");
+  const gateway = createHirayaAiProvider(getGatewayKey());
   try {
     const result = streamText({
       model: gateway(HIRAYA_MODEL),
@@ -112,8 +112,8 @@ export const askAssistant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => z.object({ business: businessSchema, history: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(4000) })).max(10).default([]), question: z.string().trim().min(1).max(2000) }).parse(data))
   .handler(async ({ data }) => {
-    const { createLovableAiGatewayProvider, getGatewayKey, HIRAYA_MODEL } = await import("./ai-gateway.server");
-    const gateway = createLovableAiGatewayProvider(getGatewayKey());
+    const { createHirayaAiProvider, getGatewayKey, HIRAYA_MODEL } = await import("./ai-gateway.server");
+    const gateway = createHirayaAiProvider(getGatewayKey());
     try {
       const result = await generateText({ model: gateway(HIRAYA_MODEL), system: `${SYSTEM}\n\nThe owner's business:\n${businessBrief(data.business)}\n\nAnswer in at most 220 words. Use short paragraphs or bullet points. If the question needs a human specialist, say so.`, messages: [...data.history.slice(-10).map((m) => ({ role: m.role, content: m.content }) as const), { role: "user" as const, content: data.question }], maxOutputTokens: 450, providerOptions: { lovable: { reasoningEffort: "low" } } });
       const answer = result.text.trim();
