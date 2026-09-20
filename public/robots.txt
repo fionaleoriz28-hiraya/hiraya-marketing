@@ -1,16 +1,43 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /auth
+Disallow: /dashboard
+Disallow: /audit
+Disallow: /engagement
+Disallow: /growth
+Disallow: /planner
+Disallow: /strategy
+Disallow: /assistant
+Disallow: /profile
+Disallow: /subscription
+Disallow: /agent
 
 User-agent: Bingbot
 Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+Disallow: /auth
+Disallow: /dashboard
+Disallow: /audit
+Disallow: /engagement
+Disallow: /growth
+Disallow: /planner
+Disallow: /strategy
+Disallow: /assistant
+Disallow: /profile
+Disallow: /subscription
+Disallow: /agent
 
 User-agent: *
 Allow: /
+Disallow: /auth
+Disallow: /dashboard
+Disallow: /audit
+Disallow: /engagement
+Disallow: /growth
+Disallow: /planner
+Disallow: /strategy
+Disallow: /assistant
+Disallow: /profile
+Disallow: /subscription
+Disallow: /agent
 
 Sitemap: https://hiraya-marketing.lovable.app/sitemap.xml
