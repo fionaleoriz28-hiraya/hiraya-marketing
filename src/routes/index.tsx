@@ -29,42 +29,20 @@ export const Route = createFileRoute("/")({
         content:
           "A simple digital marketing workspace for small businesses: audits, engagement, growth, content plans, strategy and ads.",
       },
+      { property: "og:image", content: "/hiraya-logo.svg" },
+      { property: "og:image:alt", content: "Hiraya Marketing — From Vision to Visibility" },
     ],
   }),
   component: Landing,
 });
 
 const features = [
-  {
-    icon: Search,
-    title: "Brand awareness audit",
-    body: "Answer a short set of questions and get a score out of 100 with clear strengths, gaps and next steps.",
-  },
-  {
-    icon: Heart,
-    title: "Engagement analysis",
-    body: "Log your posts and see which formats, platforms and posting times your customers actually respond to.",
-  },
-  {
-    icon: BarChart3,
-    title: "Growth tracking",
-    body: "Record followers, reach and leads each month and watch the trend instead of guessing.",
-  },
-  {
-    icon: CalendarDays,
-    title: "Content planning",
-    body: "Get a themed calendar with ready captions and hashtags you can edit, schedule and tick off.",
-  },
-  {
-    icon: Compass,
-    title: "Marketing strategy",
-    body: "A 90-day plan built around your goals, audience and budget — pillars, channels and monthly actions.",
-  },
-  {
-    icon: Megaphone,
-    title: "Paid ads guidance",
-    body: "Campaign ideas with targeting, budget split and ad copy so every peso works harder.",
-  },
+  { icon: Search, title: "Brand awareness audit", body: "Answer a short set of questions and get a score out of 100 with clear strengths, gaps and next steps." },
+  { icon: Heart, title: "Engagement analysis", body: "Log your posts and see which formats, platforms and posting times your customers actually respond to." },
+  { icon: BarChart3, title: "Growth tracking", body: "Record followers, reach and leads each month and watch the trend instead of guessing." },
+  { icon: CalendarDays, title: "Content planning", body: "Get a themed calendar with ready captions and hashtags you can edit, schedule and tick off." },
+  { icon: Compass, title: "Marketing strategy", body: "A 90-day plan built around your goals, audience and budget — pillars, channels and monthly actions." },
+  { icon: Megaphone, title: "Paid ads guidance", body: "Campaign ideas with targeting, budget split and ad copy so every peso works harder." },
 ];
 
 function Landing() {
@@ -74,10 +52,9 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
-        <div>
-          <span className="font-display text-xl font-semibold">Hiraya</span>
-          <span className="ml-1 font-display text-xl font-light text-primary">Marketing</span>
-        </div>
+        <Link to={primaryTo} aria-label="Hiraya Marketing" className="flex items-center">
+          <img src="/hiraya-logo.svg" alt="Hiraya Marketing" className="h-16 w-16 object-contain sm:h-20 sm:w-20" />
+        </Link>
         <Button asChild variant="ghost" size="sm">
           <Link to={primaryTo}>{user ? "Open workspace" : "Sign in"}</Link>
         </Button>
@@ -171,9 +148,7 @@ function Landing() {
                 <article key={feature.title} className="card-soft p-6">
                   <feature.icon className="size-5 text-primary" />
                   <h3 className="mt-4 font-display text-lg font-semibold">{feature.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {feature.body}
-                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{feature.body}</p>
                 </article>
               ))}
             </div>
@@ -192,16 +167,9 @@ function Landing() {
         </section>
 
         <section className="mx-auto max-w-3xl px-5 py-20 text-center">
-          <h2 className="font-display text-2xl font-semibold sm:text-3xl">
-            Ready to be seen by the right people?
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            Set up your business profile once, and Hiraya tailors every audit, plan and ad idea to
-            it. Need a human? Request a live agent any time.
-          </p>
-          <Button asChild size="lg" className="mt-8">
-            <Link to={primaryTo}>{user ? "Open workspace" : "Create your account"}</Link>
-          </Button>
+          <h2 className="font-display text-2xl font-semibold sm:text-3xl">Ready to be seen by the right people?</h2>
+          <p className="mt-3 text-muted-foreground">Set up your business profile once, and Hiraya tailors every audit, plan and ad idea to it. Need a human? Request a live agent any time.</p>
+          <Button asChild size="lg" className="mt-8"><Link to={primaryTo}>{user ? "Open workspace" : "Create your account"}</Link></Button>
         </section>
       </main>
 
