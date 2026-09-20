@@ -98,15 +98,11 @@ type TableName =
   | "assistant_messages"
   | "agent_requests";
 
-export function useRows<T>(
-  table: TableName,
-  orderBy: string,
-  ascending = false,
-) {
+export function useRows<T>(table: TableName, orderBy: string, ascending = false) {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: [table, user?.id],
+    queryKey: [table, user?.id, orderBy, ascending],
     enabled: !!user,
     queryFn: async (): Promise<T[]> => {
       const { data, error } = await supabase
@@ -163,18 +159,26 @@ export function useDeleteRow(table: TableName) {
   });
 }
 
+function numeric(value: unknown) {
+  const result = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(result) ? result : 0;
+}
+
 export function engagementRate(post: Post) {
-  const interactions = post.likes + post.comments + post.shares;
-  if (!post.reach) return 0;
-  return (interactions / post.reach) * 100;
+  const reach = numeric(post.reach);
+  if (reach <= 0) return 0;
+  const interactions = numeric(post.likes) + numeric(post.comments) + numeric(post.shares);
+  return (interactions / reach) * 100;
 }
 
 export function formatNumber(value: number) {
-  return value.toLocaleString();
+  return numeric(value).toLocaleString();
 }
 
 export function formatMonth(period: string) {
-  const date = new Date(`${period.slice(0, 7)}-01T00:00:00`);
+  const match = /^(\d{4})-(\d{2})/.exec(period);
+  if (!match) return period;
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, 1);
   if (Number.isNaN(date.getTime())) return period;
   return date.toLocaleDateString(undefined, { month: "short", year: "numeric" });
 }
