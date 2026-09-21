@@ -2,14 +2,15 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 
-export type Plan = "free" | "starter" | "pro";
+export type Plan = "free" | "starter" | "growth" | "pro";
 
 export type Feature = "dashboard" | "audit" | "growth" | "planner" | "strategy" | "assistant" | "live-agent" | "engagement";
 
 export const PLAN_LEVEL: Record<Plan, number> = {
   free: 0,
   starter: 1,
-  pro: 2,
+  growth: 2,
+  pro: 3,
 };
 
 type Requirement = Plan | "unavailable";
@@ -28,11 +29,12 @@ export const FEATURE_REQUIREMENTS: Record<Feature, Requirement> = {
 export const PLAN_FEATURES = {
   free: ["Dashboard", "Marketing Audit", "Growth Tracking"],
   starter: ["Dashboard", "Marketing Audit", "Growth Tracking", "Content Planner", "Strategy & Ads", "AI Marketing Assistant"],
+  growth: ["Dashboard", "Marketing Audit", "Growth Tracking", "Content Planner", "Strategy & Ads", "AI Marketing Assistant", "Advanced Growth Insights", "Higher Usage Limits"],
   pro: ["Dashboard", "Marketing Audit", "Growth Tracking", "Content Planner", "Strategy & Ads", "AI Marketing Assistant", "Live Rep"],
 } as const;
 
 function normalizePlan(value: unknown): Plan {
-  if (value === "starter" || value === "pro") return value;
+  if (value === "starter" || value === "growth" || value === "pro") return value;
   return "free";
 }
 
