@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth";
 
 export type Plan = "free" | "starter" | "pro";
 
-export type Feature = "dashboard" | "audit" | "growth" | "planner" | "strategy" | "assistant" | "live-agent";
+export type Feature = "dashboard" | "audit" | "growth" | "planner" | "strategy" | "assistant" | "live-agent" | "engagement";
 
 export const PLAN_LEVEL: Record<Plan, number> = {
   free: 0,
@@ -20,6 +20,7 @@ export const FEATURE_REQUIREMENTS: Record<Feature, Plan> = {
   strategy: "starter",
   assistant: "starter",
   "live-agent": "pro",
+  engagement: "unavailable" as never,
 };
 
 export const PLAN_FEATURES = {
