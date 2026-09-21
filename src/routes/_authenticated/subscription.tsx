@@ -19,7 +19,7 @@ function SubscriptionPage() {
       .catch((error) => toast.error(error instanceof Error ? error.message : "Could not load subscription."));
   }, []);
 
-  const checkout = async (plan: "starter" | "pro") => {
+  const checkout = async (plan: "starter" | "growth" | "pro") => {
     setLoadingPlan(plan);
     try {
       const { url } = await createCheckoutSession({ data: { plan } });
@@ -43,7 +43,7 @@ function SubscriptionPage() {
 
   const currentPlan = subscription?.plan ?? "free";
   const currentPlanName = currentPlan === "free" ? "Free" : PLANS[currentPlan as keyof typeof PLANS]?.name ?? String(currentPlan);
-  const planKeys = ["free", "starter", "pro"] as const;
+  const planKeys = ["free", "starter", "growth", "pro"] as const;
   const featureRows = useMemo(() => {
     const all = new Set<string>();
     planKeys.forEach((key) => PLAN_FEATURES[key].forEach((feature) => all.add(feature)));
@@ -56,7 +56,7 @@ function SubscriptionPage() {
         <div>
           <p className="text-sm font-medium text-primary">Hiraya Marketing</p>
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Plans that grow with your business</h1>
-          <p className="mt-2 max-w-2xl text-muted-foreground">Start with the free marketing essentials, then unlock planning, strategy and AI with Starter. Pro adds Live Rep support.</p>
+          <p className="mt-2 max-w-2xl text-muted-foreground">Start with the free marketing essentials, then unlock planning, strategy and AI with Starter. Growth adds higher usage and advanced insights; Pro adds Live Rep support.</p>
         </div>
         {subscription?.stripe_customer_id && <Button variant="outline" onClick={portal} disabled={portalLoading}><CreditCard className="mr-2 size-4" />{portalLoading ? "Opening…" : "Manage billing"}</Button>}
       </div>
@@ -68,12 +68,12 @@ function SubscriptionPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid gap-5 lg:grid-cols-4">
         {planKeys.map((key) => {
           const isCurrent = currentPlan === key;
           const paid = key !== "free";
           const plan = paid ? PLANS[key] : { name: "Free", price: 0, description: "Core marketing essentials for getting started." };
-          const highlighted = key === "starter";
+          const highlighted = key === "growth";
           return (
             <Card key={key} className={`relative flex h-full flex-col ${highlighted ? "border-primary shadow-lg" : ""}`}>
               {highlighted && <div className="absolute right-4 top-4 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">Recommended</div>}
