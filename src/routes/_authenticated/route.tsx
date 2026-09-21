@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useIsAgent } from "@/lib/chat";
 import { useSubscription, canAccess, type Feature } from "@/lib/entitlements";
+import { FeatureGate } from "@/components/feature-gate";
 
 export const Route = createFileRoute("/_authenticated")({ component: AuthenticatedLayout });
 
@@ -37,6 +38,7 @@ function AuthenticatedLayout() {
   const { data: isAgent } = useIsAgent();
   const { data: subscription, isLoading: subscriptionLoading } = useSubscription();
   const plan = subscription?.plan ?? "free";
+  const requiredFeature: Feature | null = pathname.startsWith("/planner") ? "planner" : pathname.startsWith("/strategy") ? "strategy" : pathname.startsWith("/assistant") ? "assistant" : pathname.startsWith("/agent") ? "live-agent" : null;
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const visibleNav = [...nav.filter((item) => !("feature" in item) || canAccess(plan, item.feature)), ...(isAgent && canAccess(plan, "live-agent") ? [{ to: "/agent" as const, label: "Live Rep", icon: MessageCircle }] : [])];
@@ -79,7 +81,7 @@ function AuthenticatedLayout() {
           <Button variant="ghost" size="sm" onClick={() => signOut().then(() => navigate({ to: "/" }))}><LogOut className="size-4" /></Button>
         </header>
 
-        <main className="mx-auto max-w-5xl px-5 py-6 sm:py-8"><Outlet /></main>
+        <main className="mx-auto max-w-5xl px-5 py-6 sm:py-8">{requiredFeature && !canAccess(plan, requiredFeature) ? <FeatureGate feature={requiredFeature}>{null}</FeatureGate> : <Outlet />}</main>
       </div>
 
       <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-card/95 backdrop-blur lg:hidden">
