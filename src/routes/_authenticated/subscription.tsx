@@ -1,3 +1,185 @@
-import {createFileRoute} from "@tanstack/react-router";import{Check,CreditCard,Sparkles}from"lucide-react";import{useEffect,useState}from"react";import{Button}from"@/components/ui/button";import{Card,CardContent,CardDescription,CardHeader,CardTitle}from"@/components/ui/card";import{createCheckoutSession,createCustomerPortalSession,getSubscription,PLANS}from"@/lib/billing.functions";import{toast}from"sonner";
-export const Route=createFileRoute("/_authenticated/subscription")({component:SubscriptionPage});
-function SubscriptionPage(){const[subscription,setSubscription]=useState<any>(null);const[loadingPlan,setLoadingPlan]=useState<string|null>(null);const[portalLoading,setPortalLoading]=useState(false);useEffect(()=>{getSubscription().then(setSubscription).catch(e=>toast.error(e.message));},[]);const checkout=async(plan:keyof typeof PLANS)=>{setLoadingPlan(plan);try{const{url}=await createCheckoutSession({data:{plan}});window.location.assign(url);}catch(e){toast.error(e instanceof Error?e.message:"Could not start checkout.");setLoadingPlan(null);}};const portal=async()=>{setPortalLoading(true);try{const{url}=await createCustomerPortalSession();window.location.assign(url);}catch(e){toast.error(e instanceof Error?e.message:"Could not open billing portal.");setPortalLoading(false);}};return <div className="space-y-8"><div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-sm font-medium text-primary">Hiraya Marketing</p><h1 className="text-3xl font-semibold tracking-tight">Choose your plan</h1><p className="mt-2 max-w-2xl text-muted-foreground">Turn on the marketing tools your business needs. Billing is handled securely by Stripe.</p></div>{subscription?.stripe_customer_id&&<Button variant="outline" onClick={portal} disabled={portalLoading}><CreditCard className="mr-2 size-4"/>{portalLoading?"Opening…":"Manage billing"}</Button>}</div>{subscription?.plan&&subscription.plan!=="free"&&<Card className="border-primary/30 bg-primary/5"><CardContent className="flex flex-col gap-2 p-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-semibold">Current plan: {String(subscription.plan).replace(/^./,c=>c.toUpperCase())}</p><p className="text-sm text-muted-foreground">Status: {subscription.status}{subscription.cancel_at_period_end?" · Cancels at period end":""}</p></div><Button variant="outline" onClick={portal}>Manage subscription</Button></CardContent></Card>}<div className="grid gap-5 md:grid-cols-3">{(Object.entries(PLANS) as [keyof typeof PLANS,typeof PLANS[keyof typeof PLANS]][]).map(([key,plan])=><Card key={key} className={`relative flex flex-col ${key==="growth"?"border-primary shadow-md":""}`}>{key==="growth"&&<div className="absolute right-4 top-4 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">Most popular</div>}<CardHeader><div className="mb-2 flex size-10 items-center justify-center rounded-lg bg-secondary"><Sparkles className="size-5"/></div><CardTitle>{plan.name}</CardTitle><CardDescription>{key==="starter"?"For getting your marketing system in place.":key==="growth"?"For businesses ready to grow consistently.":"For businesses that want the full Hiraya workflow."}</CardDescription><div className="pt-2 text-3xl font-bold">₱{plan.price.toLocaleString()}<span className="text-sm font-normal text-muted-foreground"> / month</span></div></CardHeader><CardContent className="flex flex-1 flex-col"><ul className="mb-6 space-y-3 text-sm">{(key==="starter"?["Marketing audit","Content planner","Growth tracking"]:key==="growth"?["Everything in Starter","AI Marketing Assistant","Strategy & Ads"]:["Everything in Growth","Live Agent support","Priority workspace features"]).map(f=><li key={f} className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0 text-primary"/>{f}</li>)}</ul><Button className="mt-auto w-full" onClick={()=>checkout(key)} disabled={loadingPlan!==null||subscription?.plan===key}>{loadingPlan===key?"Opening checkout…":subscription?.plan===key?"Current plan":`Choose ${plan.name}`}</Button></CardContent></Card>)}</div><p className="text-center text-xs text-muted-foreground">Test-mode billing is enabled for the MVP. Add your live Stripe keys before accepting real customer payments.</p></div>}
+import { createFileRoute } from "@tanstack/react-router";
+import { Check, CreditCard, Sparkles, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  createCheckoutSession,
+  createCustomerPortalSession,
+  getSubscription,
+  PLANS,
+  PLAN_FEATURES,
+} from "@/lib/billing.functions";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/_authenticated/subscription")({
+  component: SubscriptionPage,
+});
+
+function SubscriptionPage() {
+  const [subscription, setSubscription] = useState<any>(null);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  const loadSubscription = () =>
+    getSubscription()
+      .then(setSubscription)
+      .catch((error) => toast.error(error instanceof Error ? error.message : "Could not load subscription."));
+
+  useEffect(() => {
+    void loadSubscription();
+  }, []);
+
+  const checkout = async (plan: keyof typeof PLANS) => {
+    setLoadingPlan(plan);
+    try {
+      const { url } = await createCheckoutSession({ data: { plan } });
+      window.location.assign(url);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not start checkout.");
+      setLoadingPlan(null);
+    }
+  };
+
+  const portal = async () => {
+    setPortalLoading(true);
+    try {
+      const { url } = await createCustomerPortalSession();
+      window.location.assign(url);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not open billing portal.");
+      setPortalLoading(false);
+    }
+  };
+
+  const currentPlan = subscription?.plan ?? "free";
+  const currentPlanName = currentPlan === "free"
+    ? "Free"
+    : PLANS[currentPlan as keyof typeof PLANS]?.name ?? String(currentPlan);
+
+  const featureRows = useMemo(() => {
+    const all = new Set<string>();
+    Object.values(PLAN_FEATURES).forEach((features) => features.forEach((feature) => all.add(feature)));
+    return [...all];
+  }, []);
+
+  return (
+    <div className="space-y-10">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-medium text-primary">Hiraya Marketing</p>
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Plans that grow with your business</h1>
+          <p className="mt-2 max-w-2xl text-muted-foreground">
+            Get the marketing tools you need today and unlock more automation, AI, and support as you grow.
+          </p>
+        </div>
+        {subscription?.stripe_customer_id && (
+          <Button variant="outline" onClick={portal} disabled={portalLoading}>
+            <CreditCard className="mr-2 size-4" />
+            {portalLoading ? "Opening…" : "Manage billing"}
+          </Button>
+        )}
+      </div>
+
+      <Card className="border-primary/30 bg-primary/5">
+        <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm text-muted-foreground">Your current plan</p>
+            <p className="text-xl font-semibold">{currentPlanName}</p>
+            <p className="text-sm text-muted-foreground">
+              {subscription?.status ?? "inactive"}
+              {subscription?.cancel_at_period_end ? " · Cancels at period end" : ""}
+            </p>
+          </div>
+          {subscription?.stripe_customer_id && (
+            <Button variant="outline" onClick={portal}>Manage subscription</Button>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-5 lg:grid-cols-3">
+        {(Object.entries(PLANS) as [keyof typeof PLANS, (typeof PLANS)[keyof typeof PLANS]][]).map(([key, plan]) => {
+          const isCurrent = currentPlan === key;
+          const isGrowth = key === "growth";
+          return (
+            <Card key={key} className={`relative flex h-full flex-col ${isGrowth ? "border-primary shadow-lg" : ""}`}>
+              {isGrowth && (
+                <div className="absolute right-4 top-4 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                  Recommended
+                </div>
+              )}
+              <CardHeader>
+                <div className="mb-2 flex size-10 items-center justify-center rounded-lg bg-secondary">
+                  <Sparkles className="size-5" />
+                </div>
+                <CardTitle>{plan.name}</CardTitle>
+                <CardDescription>{plan.description}</CardDescription>
+                <div className="pt-2 text-3xl font-bold">
+                  ₱{plan.price.toLocaleString()}
+                  <span className="text-sm font-normal text-muted-foreground"> / month</span>
+                </div>
+              </CardHeader>
+              <CardContent className="flex flex-1 flex-col">
+                <ul className="mb-6 space-y-3 text-sm">
+                  {PLAN_FEATURES[key].map((feature) => (
+                    <li key={feature} className="flex gap-2">
+                      <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  className="mt-auto w-full"
+                  variant={isCurrent ? "secondary" : isGrowth ? "default" : "outline"}
+                  onClick={() => checkout(key)}
+                  disabled={loadingPlan !== null || isCurrent}
+                >
+                  {loadingPlan === key ? "Opening checkout…" : isCurrent ? "Current plan" : `Choose ${plan.name}`}
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      <section>
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold">Compare features</h2>
+          <p className="text-sm text-muted-foreground">See exactly what is included before you upgrade.</p>
+        </div>
+        <Card className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] text-sm">
+              <thead className="bg-secondary/60">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium">Feature</th>
+                  {(Object.keys(PLANS) as (keyof typeof PLANS)[]).map((key) => (
+                    <th key={key} className="px-4 py-3 text-center font-medium">{PLANS[key].name}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {featureRows.map((feature) => (
+                  <tr key={feature}>
+                    <td className="px-4 py-3">{feature}</td>
+                    {(Object.keys(PLANS) as (keyof typeof PLANS)[]).map((key) => (
+                      <td key={key} className="px-4 py-3 text-center">
+                        {PLAN_FEATURES[key].includes(feature)
+                          ? <Check className="mx-auto size-4 text-primary" />
+                          : <X className="mx-auto size-4 text-muted-foreground/50" />}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </section>
+
+      <p className="text-center text-xs text-muted-foreground">
+        Payments are processed securely by Stripe. Subscription access is updated from Stripe webhook events.
+      </p>
+    </div>
+  );
+}
