@@ -17,17 +17,17 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useIsAgent } from "@/lib/chat";
+import { useSubscription, canAccess, type Feature } from "@/lib/entitlements";
 
 export const Route = createFileRoute("/_authenticated")({ component: AuthenticatedLayout });
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/audit", label: "Audit", icon: Search },
-  { to: "/engagement", label: "Engagement", icon: Heart },
   { to: "/growth", label: "Growth", icon: BarChart3 },
-  { to: "/planner", label: "Planner", icon: CalendarDays },
-  { to: "/strategy", label: "Strategy & Ads", icon: Compass },
-  { to: "/assistant", label: "Assistant", icon: MessageCircle },
+  { to: "/planner", label: "Planner", icon: CalendarDays, feature: "planner" as Feature },
+  { to: "/strategy", label: "Strategy & Ads", icon: Compass, feature: "strategy" as Feature },
+  { to: "/assistant", label: "Assistant", icon: MessageCircle, feature: "assistant" as Feature },
   { to: "/profile", label: "Business", icon: Store },
   { to: "/subscription", label: "Subscription", icon: CreditCard },
 ] as const;
@@ -35,15 +35,17 @@ const nav = [
 function AuthenticatedLayout() {
   const { user, loading, signOut } = useAuth();
   const { data: isAgent } = useIsAgent();
+  const { data: subscription, isLoading: subscriptionLoading } = useSubscription();
+  const plan = subscription?.plan ?? "free";
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const visibleNav = isAgent ? [...nav, { to: "/agent" as const, label: "Live Agent", icon: MessageCircle }] : nav;
+  const visibleNav = [...nav.filter((item) => !("feature" in item) || canAccess(plan, item.feature)), ...(isAgent && canAccess(plan, "live-agent") ? [{ to: "/agent" as const, label: "Live Rep", icon: MessageCircle }] : [])];
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
   }, [loading, user, navigate]);
 
-  if (loading || !user) {
+  if (loading || !user || subscriptionLoading) {
     return <div className="flex min-h-screen items-center justify-center bg-background"><p className="text-sm text-muted-foreground">Loading your workspace…</p></div>;
   }
 
