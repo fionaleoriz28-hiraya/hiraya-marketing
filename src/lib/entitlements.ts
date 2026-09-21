@@ -12,7 +12,7 @@ export const PLAN_LEVEL: Record<Plan, number> = {
   pro: 2,
 };
 
-export const FEATURE_REQUIREMENTS: Record<Feature, Plan> = {
+type Requirement = Plan | "unavailable";\n\nexport const FEATURE_REQUIREMENTS: Record<Feature, Requirement> = {
   dashboard: "free",
   audit: "free",
   growth: "free",
@@ -20,7 +20,7 @@ export const FEATURE_REQUIREMENTS: Record<Feature, Plan> = {
   strategy: "starter",
   assistant: "starter",
   "live-agent": "pro",
-  engagement: "unavailable" as never,
+  engagement: "unavailable",
 };
 
 export const PLAN_FEATURES = {
