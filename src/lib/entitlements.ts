@@ -12,7 +12,9 @@ export const PLAN_LEVEL: Record<Plan, number> = {
   pro: 2,
 };
 
-type Requirement = Plan | "unavailable";\n\nexport const FEATURE_REQUIREMENTS: Record<Feature, Requirement> = {
+type Requirement = Plan | "unavailable";
+
+export const FEATURE_REQUIREMENTS: Record<Feature, Requirement> = {
   dashboard: "free",
   audit: "free",
   growth: "free",
