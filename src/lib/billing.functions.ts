@@ -1,7 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-export const PLANS = { starter:{name:"Starter",price:499,stripePriceId:"price_1UHfJe1lvGtULrngRv6OF3wg"}, growth:{name:"Growth",price:999,stripePriceId:"price_1UHfJg1lvGtULrngEHIpBpsu"}, pro:{name:"Pro",price:1999,stripePriceId:"price_1UHfJj1lvGtULrngHQDZaNwy"} } as const;
+export const PLANS = {
+  starter: { name: "Starter", price: 499, stripePriceId: "price_1UHfJe1lvGtULrngRv6OF3wg", description: "Get your marketing system in place." },
+  growth: { name: "Growth", price: 999, stripePriceId: "price_1UHfJg1lvGtULrngEHIpBpsu", description: "Grow consistently with AI-powered marketing." },
+  pro: { name: "Pro", price: 1999, stripePriceId: "price_1UHfJj1lvGtULrngHQDZaNwy", description: "Unlock the full Hiraya workflow and support." },
+} as const;
+
+export const PLAN_FEATURES = {
+  starter: ["Marketing Audit", "Engagement Analytics", "Growth Tracking", "Content Planner"],
+  growth: ["Marketing Audit", "Engagement Analytics", "Growth Tracking", "Content Planner", "AI Marketing Assistant", "Strategy & Ads"],
+  pro: ["Marketing Audit", "Engagement Analytics", "Growth Tracking", "Content Planner", "AI Marketing Assistant", "Strategy & Ads", "Live Agent Support", "Priority Workspace Features"],
+} as const;
+
+
 function stripeRequest(path:string, body:Record<string,string>){const secret=process.env['STRIPE_SECRET_KEY'];if(!secret)throw new Error("Stripe is not configured. Add STRIPE_SECRET_KEY to the server environment.");return fetch(`https://api.stripe.com/v1/${path}`,{method:"POST",headers:{Authorization:`Bearer ${secret}`,"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams(body)});}
 export const getSubscription=createServerFn({method:"GET"}).middleware([requireSupabaseAuth]).handler(async({context})=>{const {data,error}=await context.supabase.from("subscriptions" as never).select("*").eq("user_id",context.userId).maybeSingle();if(error)throw new Error(error.message);return data??{plan:"free",status:"inactive",cancel_at_period_end:false,current_period_end:null};});
 export const createCheckoutSession=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).inputValidator((data:unknown)=>z.object({plan:z.enum(["starter","growth","pro"])}).parse(data)).handler(async({data,context})=>{const plan=PLANS[data.plan];const appUrl=process.env['APP_URL']||process.env['VITE_APP_URL']||"http://localhost:3000";const {data:existing}=await context.supabase.from("subscriptions" as never).select("stripe_customer_id").eq("user_id",context.userId).maybeSingle();const customerId=(existing as {stripe_customer_id?:string|null}|null)?.stripe_customer_id;const body:Record<string,string>={mode:"subscription","line_items[0][price]":plan.stripePriceId,"line_items[0][quantity]":"1",success_url:`${appUrl}/subscription?checkout=success`,cancel_url:`${appUrl}/subscription?checkout=cancelled`,client_reference_id:context.userId,"metadata[user_id]":context.userId,"metadata[plan]":data.plan,"subscription_data[metadata][user_id]":context.userId,"subscription_data[metadata][plan]":data.plan,allow_promotion_codes:"true"};if(customerId)body['customer']=customerId;else body['customer_creation']="always";const response=await stripeRequest("checkout/sessions",body);const payload=await response.json();if(!response.ok||!payload.url)throw new Error(payload.error?.message||"Could not create Stripe Checkout session.");return{url:payload.url as string};});
