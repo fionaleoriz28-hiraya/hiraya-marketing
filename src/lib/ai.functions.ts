@@ -16,6 +16,15 @@ const businessSchema = z.object({
 
 type BusinessInput = z.infer<typeof businessSchema>;
 
+async function requireStarterOrPro(context: { supabase: any; userId: string }) {
+  const { data, error } = await context.supabase.from("subscriptions" as never).select("plan,status").eq("user_id", context.userId).maybeSingle();
+  if (error) throw new Error(error.message);
+  const plan = (data as { plan?: string; status?: string } | null)?.plan;
+  if ((plan !== "starter" && plan !== "pro") || (data as { status?: string } | null)?.status === "inactive") {
+    throw new Error("This AI feature is included with Starter and Pro. Upgrade your plan to continue.");
+  }
+}
+
 function businessBrief(b: BusinessInput) {
   return [
     `Business name: ${b.name || "not given"}`,
@@ -72,7 +81,7 @@ const contentPlanSchema = z.object({
 export const generateContentPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => z.object({ business: businessSchema, days: z.number(), focus: z.string().default(""), startDate: z.string() }).parse(data))
-  .handler(async ({ data }) => runStructured(contentPlanSchema, [businessBrief(data.business), "", `Plan social media content for the ${data.days} days starting ${data.startDate}.`, data.focus ? `Special focus for this period: ${data.focus}` : "", "Give one overall theme for the period, then between 6 and 12 posts.", "For each post: the platform (only ones they use, if listed), dayOffset as a whole number of days from the start date (0 = start date, never negative, never past the last day), a short post theme, a ready-to-use caption and hashtags.", "Vary formats: reels, carousels, single photos, stories, customer stories, behind the scenes, offers."].filter(Boolean).join("\n")));
+  .handler(async ({ data, context }) => { await requireStarterOrPro(context); return runStructured(contentPlanSchema, [businessBrief(data.business), "", `Plan social media content for the ${data.days} days starting ${data.startDate}.`, data.focus ? `Special focus for this period: ${data.focus}` : "", "Give one overall theme for the period, then between 6 and 12 posts.", "For each post: the platform (only ones they use, if listed), dayOffset as a whole number of days from the start date (0 = start date, never negative, never past the last day), a short post theme, a ready-to-use caption and hashtags.", "Vary formats: reels, carousels, single photos, stories, customer stories, behind the scenes, offers."].filter(Boolean).join("\n")));
 
 const strategySchema = z.object({
   title: z.string(), summary: z.string(), positioning: z.string(),
@@ -84,7 +93,7 @@ const strategySchema = z.object({
 export const generateStrategy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => z.object({ business: businessSchema, notes: z.string().default("") }).parse(data))
-  .handler(async ({ data }) => runStructured(strategySchema, [businessBrief(data.business), data.notes ? `Extra context from the owner: ${data.notes}` : "", "", "Build a 90-day digital marketing strategy.", "Include a short title, a 2-3 sentence summary, a positioning statement, 3-4 content pillars, a plan per channel they use, 5-8 concrete monthly actions, and 4-6 measurable KPIs.", "Keep everything achievable for a small team with the stated budget."].filter(Boolean).join("\n")));
+  .handler(async ({ data, context }) => { await requireStarterOrPro(context); return runStructured(strategySchema, [businessBrief(data.business), data.notes ? `Extra context from the owner: ${data.notes}` : "", "", "Build a 90-day digital marketing strategy.", "Include a short title, a 2-3 sentence summary, a positioning statement, 3-4 content pillars, a plan per channel they use, 5-8 concrete monthly actions, and 4-6 measurable KPIs.", "Keep everything achievable for a small team with the stated budget."].filter(Boolean).join("\n")));
 
 const adPlanSchema = z.object({
   summary: z.string(),
@@ -94,7 +103,7 @@ const adPlanSchema = z.object({
 export const generateAdPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => z.object({ business: businessSchema, budget: z.string().default(""), objective: z.string().default("") }).parse(data))
-  .handler(async ({ data }) => runStructured(adPlanSchema, [businessBrief(data.business), data.budget ? `Total ad budget for this push: ${data.budget}` : "", data.objective ? `Main objective: ${data.objective}` : "", "", "Propose 2-4 paid ad campaigns.", "For each: a name, the platform, the campaign objective, budgetShare as an amount or percentage of the budget, who to target (age, location, interests, behaviours), one ready-to-use ad copy, and a realistic expected outcome without guaranteeing results.", "Start with a 2 sentence summary of the overall approach."].filter(Boolean).join("\n")));
+  .handler(async ({ data, context }) => { await requireStarterOrPro(context); return runStructured(adPlanSchema, [businessBrief(data.business), data.budget ? `Total ad budget for this push: ${data.budget}` : "", data.objective ? `Main objective: ${data.objective}` : "", "", "Propose 2-4 paid ad campaigns.", "For each: a name, the platform, the campaign objective, budgetShare as an amount or percentage of the budget, who to target (age, location, interests, behaviours), one ready-to-use ad copy, and a realistic expected outcome without guaranteeing results.", "Start with a 2 sentence summary of the overall approach."].filter(Boolean).join("\n")));
 
 const growthInsightsSchema = z.object({
   summary: z.string(),
