@@ -111,7 +111,7 @@ def auth():
             if not get_supabase():
                 raise RuntimeError("Supabase is not configured. Render must define SUPABASE_URL and one of SUPABASE_PUBLISHABLE_KEY, SUPABASE_ANON_KEY, or SUPABASE_KEY.")
             if mode == "signup":
-                result = supabase.auth.sign_up({
+                result = get_supabase().auth.sign_up({
                     "email": email,
                     "password": password,
                     "options": {"data": {"full_name": full_name}},
@@ -122,7 +122,7 @@ def auth():
                     flash("Check your email to confirm your account, then sign in.", "success")
                     return render_template("auth.html", check_email=True, email=email)
             else:
-                result = supabase.auth.sign_in_with_password({"email": email, "password": password})
+                result = get_supabase().auth.sign_in_with_password({"email": email, "password": password})
             if result.session and result.user:
                 session["user"] = {"id": str(result.user.id), "email": result.user.email, "full_name": (result.user.user_metadata or {}).get("full_name", "")}
                 return redirect(url_for("dashboard"))
@@ -134,9 +134,10 @@ def auth():
 
 @app.route("/logout")
 def logout():
-    if supabase:
+    client = get_supabase()
+    if client:
         try:
-            supabase.auth.sign_out()
+            client.auth.sign_out()
         except Exception:
             pass
     session.clear()
