@@ -120,7 +120,8 @@ export const generateGrowthInsights = createServerFn({ method: "POST" })
 export const askAssistant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => z.object({ business: businessSchema, history: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(4000) })).max(10).default([]), question: z.string().trim().min(1).max(2000) }).parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await requireStarterOrPro(context);
     const { createHirayaAiProvider, getGatewayKey, HIRAYA_MODEL, HIRAYA_PROVIDER_OPTIONS } = await import("./ai-gateway.server");
     const gateway = createHirayaAiProvider(getGatewayKey());
     try {
