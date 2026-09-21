@@ -7,7 +7,7 @@ services:
     startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT app:app
     envVars:
       - key: FLASK_SECRET_KEY
-        sync: false
+        generateValue: true
       - key: SUPABASE_URL
         value: https://eszlrvwnaubkljmdxtss.supabase.co
       - key: SUPABASE_PUBLISHABLE_KEY
