@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { askAssistant } from "@/lib/ai.functions";
 import { friendlyError, toAiBusiness, useBusiness } from "@/lib/business";
 import { useMessages, useMyConversation, useSendMessage, useSetMode } from "@/lib/chat";
+import { useCanAccess } from "@/lib/entitlements";
 import { useInsertRow, useRows, type AgentRequest } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/assistant")({
@@ -43,6 +44,7 @@ const STARTERS = [
 
 function AssistantPage() {
   const { data: business } = useBusiness();
+  const { allowed: canUseLiveRep } = useCanAccess("live-agent");
   const { data: conversation, isLoading } = useMyConversation();
   const { data: messages = [] } = useMessages(conversation?.id);
   const sendMessage = useSendMessage();
@@ -182,7 +184,7 @@ function AssistantPage() {
               Back to AI answers
             </Button>
           ) : (
-            <Button variant="secondary" size="sm" onClick={() => setShowAgentForm(true)} disabled={setMode.isPending}>
+            <Button variant="secondary" size="sm" onClick={() => setShowAgentForm(true)} disabled={setMode.isPending || !canUseLiveRep}>
               <Headset className="size-4" /> Talk to a person
             </Button>
           )}
