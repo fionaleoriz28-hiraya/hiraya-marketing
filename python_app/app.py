@@ -2,7 +2,7 @@ import os
 from datetime import date, datetime
 from functools import wraps
 
-from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for, send_from_directory
+from flask import Flask, flash, g, jsonify, redirect, render_template, request, session, url_for, send_from_directory
 
 try:
     from supabase import create_client
@@ -10,7 +10,19 @@ except ImportError:
     create_client = None
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "change-me-in-production")
+_secret_key = (os.getenv("FLASK_SECRET_KEY") or "").strip()
+if not _secret_key:
+    raise RuntimeError(
+        "FLASK_SECRET_KEY is not set. Set a long random value in the environment before starting the app."
+    )
+app.secret_key = _secret_key
+
+GENERIC_ERROR = "Something went wrong. Please try again."
+AUTH_ERROR = "We could not sign you in. Check your details and try again."
+
+
+def log_exception(where, exc):
+    app.logger.error("%s failed: %s", where, exc, exc_info=True)
 
 SUPABASE_URL = (os.getenv("SUPABASE_URL") or "").strip().rstrip("/")
 # Support the current Supabase publishable key plus legacy deployment names.
@@ -29,7 +41,17 @@ def build_supabase_client():
     except Exception:
         return None
 
-supabase = build_supabase_client()
+def get_supabase():
+    """Return a per-request Supabase client.
+
+    A single shared client would keep one global auth session, so a sign-in or
+    sign-out by one visitor would change the identity used by other requests.
+    """
+    client = getattr(g, "_supabase_client", None)
+    if client is None:
+        client = build_supabase_client()
+        g._supabase_client = client
+    return client
 
 PLATFORMS = ["Facebook", "Instagram", "TikTok", "YouTube", "X", "LinkedIn", "Google"]
 FORMATS = ["Reel", "Carousel", "Photo", "Story", "Video", "Text"]
@@ -46,9 +68,10 @@ def login_required(view):
     return wrapped
 
 def db_select(table, order=None, limit=None):
-    if not supabase or not current_user():
+    if not get_supabase() or not current_user():
         return []
-    q = supabase.table(table).select("*").eq("user_id", current_user()["id"])
+    client = get_supabase()
+    q = client.table(table).select("*").eq("user_id", current_user()["id"])
     if order:
         q = q.order(order, desc=True)
     if limit:
@@ -56,14 +79,14 @@ def db_select(table, order=None, limit=None):
     return q.execute().data or []
 
 def db_insert(table, values):
-    if not supabase:
+    if not get_supabase():
         raise RuntimeError("Supabase is not configured. Render must define SUPABASE_URL and one of SUPABASE_PUBLISHABLE_KEY, SUPABASE_ANON_KEY, or SUPABASE_KEY.")
     values = {**values, "user_id": current_user()["id"]}
-    return supabase.table(table).insert(values).execute().data
+    return get_supabase().table(table).insert(values).execute().data
 
 def db_delete(table, row_id):
-    if supabase:
-        supabase.table(table).delete().eq("id", row_id).eq("user_id", current_user()["id"]).execute()
+    if get_supabase():
+        get_supabase().table(table).delete().eq("id", row_id).eq("user_id", current_user()["id"]).execute()
 
 @app.context_processor
 def inject_globals():
@@ -85,7 +108,7 @@ def auth():
         password = request.form.get("password", "")
         full_name = request.form.get("full_name", "").strip()
         try:
-            if not supabase:
+            if not get_supabase():
                 raise RuntimeError("Supabase is not configured. Render must define SUPABASE_URL and one of SUPABASE_PUBLISHABLE_KEY, SUPABASE_ANON_KEY, or SUPABASE_KEY.")
             if mode == "signup":
                 result = supabase.auth.sign_up({
@@ -105,7 +128,8 @@ def auth():
                 return redirect(url_for("dashboard"))
             raise RuntimeError("Authentication did not return a session.")
         except Exception as exc:
-            flash(str(exc), "error")
+            log_exception("auth", exc)
+            flash(AUTH_ERROR, "error")
     return render_template("auth.html", check_email=False, email=request.form.get("email", ""))
 
 @app.route("/logout")
@@ -139,14 +163,15 @@ def profile():
             "platforms": request.form.getlist("platforms"),
         }
         try:
-            if existing and supabase:
-                supabase.table("businesses").update(values).eq("id", existing["id"]).eq("user_id", current_user()["id"]).execute()
+            if existing and get_supabase():
+                get_supabase().table("businesses").update(values).eq("id", existing["id"]).eq("user_id", current_user()["id"]).execute()
             else:
                 db_insert("businesses", values)
             flash("Business profile saved.", "success")
             return redirect(url_for("dashboard"))
         except Exception as exc:
-            flash(str(exc), "error")
+            log_exception("request", exc)
+            flash(GENERIC_ERROR, "error")
     return render_template("profile.html", business=existing)
 
 @app.route("/engagement", methods=["GET", "POST"])
@@ -166,7 +191,8 @@ def engagement():
             })
             flash("Post added.", "success")
         except Exception as exc:
-            flash(str(exc), "error")
+            log_exception("request", exc)
+            flash(GENERIC_ERROR, "error")
         return redirect(url_for("engagement"))
     posts = db_select("posts", "posted_at")
     for p in posts:
@@ -205,7 +231,8 @@ def growth():
         try:
             db_insert("growth_snapshots",{"period":request.form.get("period") or date.today().isoformat(),"platform":request.form.get("platform","Facebook"),"followers":int(request.form.get("followers") or 0),"reach":int(request.form.get("reach") or 0),"leads":int(request.form.get("leads") or 0)})
             flash("Growth snapshot saved.","success")
-        except Exception as exc: flash(str(exc),"error")
+        except Exception as exc:
+            log_exception("request", exc); flash(GENERIC_ERROR, "error")
         return redirect(url_for("growth"))
     return render_template("growth.html",snapshots=db_select("growth_snapshots","period"))
 
@@ -227,7 +254,8 @@ def planner():
         try:
             db_insert("content_items",{"platform":request.form.get("platform","Facebook"),"scheduled_date":request.form.get("scheduled_date") or date.today().isoformat(),"theme":request.form.get("theme","").strip(),"caption":request.form.get("caption","").strip(),"hashtags":request.form.get("hashtags","").strip(),"status":request.form.get("status","idea")})
             flash("Content item saved.","success")
-        except Exception as exc: flash(str(exc),"error")
+        except Exception as exc:
+            log_exception("request", exc); flash(GENERIC_ERROR, "error")
         return redirect(url_for("planner"))
     return render_template("planner.html",items=db_select("content_items","scheduled_date"),generated=None,start_date=date.today().isoformat(),days=7,focus="")
 
@@ -255,7 +283,8 @@ def strategy():
         result=ai_json(f"""You are Hiraya, a practical digital marketing consultant for small businesses. Business: {b}. Extra context: {notes or 'none'}. Create a 90-day strategy. Return JSON keys title, summary, positioning, pillars, channels, monthlyActions, kpis. Keep it realistic and use only the business platforms.""",fallback)
         try:
             db_insert("strategies",{"title":result.get("title","90-Day Strategy"),"summary":result.get("summary",""),"details":result}); flash("Strategy saved.","success")
-        except Exception as exc: flash(str(exc),"error")
+        except Exception as exc:
+            log_exception("request", exc); flash(GENERIC_ERROR, "error")
         return redirect(url_for("strategy"))
     return render_template("strategy.html",strategies=db_select("strategies","created_at"),campaigns=db_select("ad_campaigns","created_at"),generated=None)
 
@@ -264,7 +293,8 @@ def strategy():
 def save_campaign():
     try:
         db_insert("ad_campaigns",{"name":request.form.get("name","").strip(),"platform":request.form.get("platform","Facebook"),"objective":request.form.get("objective","").strip(),"budget":float(request.form.get("budget") or 0) or None,"targeting":request.form.get("targeting","").strip(),"ad_copy":request.form.get("ad_copy","").strip(),"notes":request.form.get("notes","").strip(),"status":request.form.get("status","idea")}); flash("Campaign idea saved.","success")
-    except Exception as exc: flash(str(exc),"error")
+    except Exception as exc:
+            log_exception("request", exc); flash(GENERIC_ERROR, "error")
     return redirect(url_for("strategy"))
 
 @app.post("/strategy/campaign/<row_id>/delete")
@@ -300,7 +330,8 @@ def audit():
         result=ai_json(f"""You are Hiraya, a practical digital marketing consultant for small businesses. Business: {business_brief()}. Audit score: {total}/100. Answers: {answers}. Return JSON with summary, strengths (2-4), gaps (2-4), recommendations (4-6 objects with title, action, effort).""",fallback)
         try:
             db_insert("audits",{"score":total,"summary":result.get("summary"),"strengths":result.get("strengths",[]),"gaps":result.get("gaps",[]),"recommendations":result.get("recommendations",[]),"answers":answers}); flash("Audit saved.","success")
-        except Exception as exc: flash(str(exc),"error")
+        except Exception as exc:
+            log_exception("request", exc); flash(GENERIC_ERROR, "error")
         return render_template("audit.html",questions=questions,result=result,score=total,audits=db_select("audits","created_at"))
     return render_template("audit.html",questions=questions,result=None,score=None,audits=audits)
 
@@ -318,7 +349,8 @@ def assistant():
                 response = client.responses.create(model=os.getenv("HIRAYA_MODEL", "gpt-5-mini"), input=f"You are Hiraya Marketing, a practical marketing assistant for small businesses. Answer concisely.\n\nUser: {question}")
                 answer = response.output_text
             except Exception as exc:
-                answer = f"AI request failed: {exc}"
+                log_exception("assistant", exc)
+                answer = "Sorry, I could not generate an answer right now. Please try again."
         return render_template("assistant.html", answer=answer, question=question)
     return render_template("assistant.html", answer=None, question="")
 
