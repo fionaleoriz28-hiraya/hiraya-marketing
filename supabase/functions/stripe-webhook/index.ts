@@ -1,9 +1,9 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const PRICE_TO_PLAN: Record<string, "starter" | "growth" | "pro"> = {
-  "price_1UHfJe1lvGtULrngRv6OF3wg": "starter",
-  "price_1UHfJg1lvGtULrngEHIpBpsu": "growth",
-  "price_1UHfJj1lvGtULrngHQDZaNwy": "pro",
+  "price_1UIATB1lvGtULrng6HRygEEx": "starter",
+  "price_1UIATI1lvGtULrng2WZABzC5": "growth",
+  "price_1UIATM1lvGtULrngqL2Plxc5": "pro",
 };
 
 function getSignatureParts(signature: string) {
