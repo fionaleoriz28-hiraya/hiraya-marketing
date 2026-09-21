@@ -35,4 +35,4 @@ export const HIRAYA_PROVIDER_OPTIONS = {
     store: false,
     include: ["reasoning.encrypted_content"],
   },
-} as const;
+};
