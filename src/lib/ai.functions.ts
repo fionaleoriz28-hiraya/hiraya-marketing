@@ -115,7 +115,7 @@ export const askAssistant = createServerFn({ method: "POST" })
     const { createHirayaAiProvider, getGatewayKey, HIRAYA_MODEL, HIRAYA_PROVIDER_OPTIONS } = await import("./ai-gateway.server");
     const gateway = createHirayaAiProvider(getGatewayKey());
     try {
-      const result = streamText({ model: gateway.responses(HIRAYA_MODEL), system: `${SYSTEM}\n\nThe owner's business:\n${businessBrief(data.business)}\n\nAnswer in at most 220 words. Use short paragraphs or bullet points. If the question needs a human specialist, say so.`, messages: [...data.history.slice(-10).map((m) => ({ role: m.role, content: m.content }) as const), { role: "user" as const, content: data.question }], providerOptions: HIRAYA_PROVIDER_OPTIONS });
+      const result = streamText({ model: gateway.responses(HIRAYA_MODEL), system: `${SYSTEM}\n\nThe owner's business:\n${businessBrief(data.business)}\n\nAnswer in at most 220 words. Use short paragraphs or simple dashed bullet points. Write plain text only: never use markdown symbols such as *, **, # or backticks. If the question needs a human specialist, say so.`, messages: [...data.history.slice(-10).map((m) => ({ role: m.role, content: m.content }) as const), { role: "user" as const, content: data.question }], providerOptions: HIRAYA_PROVIDER_OPTIONS });
       const answer = (await result.text).trim();
       if (!answer) throw new Error("The AI returned an empty answer. Please try again.");
       return { answer };
