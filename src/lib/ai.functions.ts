@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { generateText, streamText, Output, NoObjectGeneratedError } from "ai";
+import { streamText, Output, NoObjectGeneratedError } from "ai";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -35,15 +35,15 @@ const SYSTEM = [
 ].join(" ");
 
 async function runStructured<T>(schema: z.ZodType<T>, prompt: string): Promise<T> {
-  const { createHirayaAiProvider, getGatewayKey, HIRAYA_MODEL } = await import("./ai-gateway.server");
+  const { createHirayaAiProvider, getGatewayKey, HIRAYA_MODEL, HIRAYA_PROVIDER_OPTIONS } = await import("./ai-gateway.server");
   const gateway = createHirayaAiProvider(getGatewayKey());
   try {
     const result = streamText({
-      model: gateway(HIRAYA_MODEL),
+      model: gateway.responses(HIRAYA_MODEL),
       system: SYSTEM,
       prompt,
       output: Output.object({ schema }),
-      providerOptions: { lovable: { reasoningEffort: "low" } },
+      providerOptions: HIRAYA_PROVIDER_OPTIONS,
     });
     return await result.output;
   } catch (error) {
@@ -112,11 +112,11 @@ export const askAssistant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => z.object({ business: businessSchema, history: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(4000) })).max(10).default([]), question: z.string().trim().min(1).max(2000) }).parse(data))
   .handler(async ({ data }) => {
-    const { createHirayaAiProvider, getGatewayKey, HIRAYA_MODEL } = await import("./ai-gateway.server");
+    const { createHirayaAiProvider, getGatewayKey, HIRAYA_MODEL, HIRAYA_PROVIDER_OPTIONS } = await import("./ai-gateway.server");
     const gateway = createHirayaAiProvider(getGatewayKey());
     try {
-      const result = await generateText({ model: gateway(HIRAYA_MODEL), system: `${SYSTEM}\n\nThe owner's business:\n${businessBrief(data.business)}\n\nAnswer in at most 220 words. Use short paragraphs or bullet points. If the question needs a human specialist, say so.`, messages: [...data.history.slice(-10).map((m) => ({ role: m.role, content: m.content }) as const), { role: "user" as const, content: data.question }], maxOutputTokens: 450, providerOptions: { lovable: { reasoningEffort: "low" } } });
-      const answer = result.text.trim();
+      const result = streamText({ model: gateway.responses(HIRAYA_MODEL), system: `${SYSTEM}\n\nThe owner's business:\n${businessBrief(data.business)}\n\nAnswer in at most 220 words. Use short paragraphs or simple dashed bullet points. Write plain text only: never use markdown symbols such as *, **, # or backticks. If the question needs a human specialist, say so.`, messages: [...data.history.slice(-10).map((m) => ({ role: m.role, content: m.content }) as const), { role: "user" as const, content: data.question }], providerOptions: HIRAYA_PROVIDER_OPTIONS });
+      const answer = (await result.text).trim();
       if (!answer) throw new Error("The AI returned an empty answer. Please try again.");
       return { answer };
     } catch (error) {
