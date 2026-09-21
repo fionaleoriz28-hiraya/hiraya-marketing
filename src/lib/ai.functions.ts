@@ -21,7 +21,7 @@ async function requireStarterOrPro(context: { supabase: any; userId: string }) {
   if (error) throw new Error(error.message);
   const plan = (data as { plan?: string; status?: string } | null)?.plan;
   if ((plan !== "starter" && plan !== "pro") || (data as { status?: string } | null)?.status === "inactive") {
-    throw new Error("This AI feature is included with Starter and Pro. Upgrade your plan to continue.");
+    throw new Error("This AI feature is included with Starter, Growth and Pro. Upgrade your plan to continue.");
   }
 }
 
