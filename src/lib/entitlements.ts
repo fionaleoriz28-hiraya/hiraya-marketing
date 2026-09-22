@@ -59,7 +59,7 @@ export function useSubscription() {
       if (error) throw error;
       return {
         ...(data as Record<string, unknown> | null),
-        plan: normalizePlan((data as Record<string, unknown> | null)?.plan),
+        plan: normalizePlan((data as Record<string, unknown> | null)?.["plan"]),
       };
     },
   });
