@@ -39,7 +39,9 @@ function normalizePlan(value: unknown): Plan {
 }
 
 export function canAccess(plan: Plan, feature: Feature) {
-  return PLAN_LEVEL[plan] >= PLAN_LEVEL[FEATURE_REQUIREMENTS[feature]];
+  const requirement = FEATURE_REQUIREMENTS[feature];
+  if (requirement === "unavailable") return false;
+  return PLAN_LEVEL[plan] >= PLAN_LEVEL[requirement];
 }
 
 export function useSubscription() {
