@@ -40,8 +40,9 @@ function AuthenticatedLayout() {
   const plan = subscription?.plan ?? "free";
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const requiredFeature: Feature | null = pathname.startsWith("/engagement") ? "engagement" : pathname.startsWith("/planner") ? "planner" : pathname.startsWith("/strategy") ? "strategy" : pathname.startsWith("/assistant") ? "assistant" : pathname.startsWith("/agent") ? "live-agent" : null;
-  const visibleNav = [...nav.filter((item) => !("feature" in item) || canAccess(plan, item.feature)), ...(isAgent && canAccess(plan, "live-agent") ? [{ to: "/agent" as const, label: "Live Rep", icon: MessageCircle }] : [])];
+  const requiredFeature: Feature | null = pathname.startsWith("/engagement") ? "engagement" : pathname.startsWith("/planner") ? "planner" : pathname.startsWith("/strategy") ? "strategy" : pathname.startsWith("/assistant") ? "assistant" : pathname.startsWith("/agent") ? (isAgent ? null : "live-agent") : null;
+  const visibleNav = [...nav.filter((item) => !("feature" in item) || canAccess(plan, item.feature)), ...(isAgent ? [{ to: "/agent" as const, label: "Live Rep", icon: MessageCircle }] : [])];
+
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
