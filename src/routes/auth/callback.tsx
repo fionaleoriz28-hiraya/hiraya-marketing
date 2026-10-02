@@ -15,32 +15,65 @@ function AuthCallbackPage() {
   useEffect(() => {
     let cancelled = false;
 
-    async function completeOAuth() {
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get("code");
-      const errorDescription = params.get("error_description");
+    async function completeAuth() {
+      const searchParams = new URLSearchParams(window.location.search);
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 
-      if (!code) {
-        const message = errorDescription || "Google sign-in could not be completed.";
-        setErrorMessage(message);
-        toast.error(message);
+      const error = searchParams.get("error") ?? hashParams.get("error");
+      const errorDescription =
+        searchParams.get("error_description") ??
+        hashParams.get("error_description");
+
+      if (error) {
+        const message = errorDescription || error || "Authentication could not be completed.";
+        if (!cancelled) {
+          setErrorMessage(message);
+          toast.error(message);
+        }
         return;
       }
 
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      const code = searchParams.get("code");
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+
+      let authError: { message: string } | null = null;
+
+      if (code) {
+        const { error: exchangeError } =
+          await supabase.auth.exchangeCodeForSession(code);
+        authError = exchangeError;
+      } else if (accessToken && refreshToken) {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        authError = sessionError;
+      } else {
+        authError = {
+          message: "Authentication response is missing a code or session tokens.",
+        };
+      }
 
       if (cancelled) return;
 
-      if (error) {
-        setErrorMessage(error.message);
-        toast.error(error.message);
+      if (authError) {
+        setErrorMessage(authError.message);
+        toast.error(authError.message);
         return;
       }
+
+      // Remove OAuth tokens/code from the address bar after the session is established.
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.origin + window.location.pathname,
+      );
 
       navigate({ to: "/dashboard" });
     }
 
-    void completeOAuth();
+    void completeAuth();
 
     return () => {
       cancelled = true;
@@ -51,7 +84,9 @@ function AuthCallbackPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-background px-5 py-12">
         <div className="card-soft w-full max-w-md p-6 text-center sm:p-8">
-          <h1 className="font-display text-xl font-semibold">Sign-in couldn’t be completed</h1>
+          <h1 className="font-display text-xl font-semibold">
+            Sign-in couldn’t be completed
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">{errorMessage}</p>
           <button
             type="button"
@@ -68,10 +103,14 @@ function AuthCallbackPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-5 py-12">
       <div className="card-soft w-full max-w-md p-6 text-center sm:p-8">
-        <img src="/hiraya-logo.svg" alt="Hiraya Marketing" className="mx-auto mb-5 h-20 w-20 object-contain" />
+        <img
+          src="/hiraya-logo.svg"
+          alt="Hiraya Marketing"
+          className="mx-auto mb-5 h-20 w-20 object-contain"
+        />
         <h1 className="font-display text-xl font-semibold">Signing you in…</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Completing your Google sign-in and opening your Hiraya workspace.
+          Completing your sign-in and opening your Hiraya workspace.
         </p>
       </div>
     </main>
