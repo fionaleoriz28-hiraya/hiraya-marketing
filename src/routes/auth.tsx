@@ -57,7 +57,14 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin, data: { full_name: fullName } } });
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+            data: { full_name: fullName },
+          },
+        });
         if (error) throw error;
         if (!data.session) {
           setCheckEmail(true);
@@ -88,13 +95,25 @@ function AuthPage() {
           {checkEmail ? (
             <div className="space-y-4 text-center">
               <h1 className="font-display text-xl font-semibold">Check your email</h1>
-              <p className="text-sm text-muted-foreground">We sent a confirmation link to <span className="font-medium">{email}</span>. Click it to finish creating your account, then come back and sign in.</p>
-              <Button variant="secondary" onClick={() => { setCheckEmail(false); setMode("signin"); }}>Back to sign in</Button>
+              <p className="text-sm text-muted-foreground">
+                We sent a confirmation link to <span className="font-medium">{email}</span>.
+                Click it to finish creating your account, then come back and sign in.
+              </p>
+              <Button variant="secondary" onClick={() => { setCheckEmail(false); setMode("signin"); }}>
+                Back to sign in
+              </Button>
             </div>
           ) : (
             <>
-              <h1 className="font-display text-xl font-semibold">{mode === "signin" ? "Welcome back" : "Create your account"}</h1>
-              <p className="mt-1 mb-6 text-sm text-muted-foreground">{mode === "signin" ? "Sign in to your marketing workspace." : "Start with a free brand awareness audit."}</p>
+              <h1 className="font-display text-xl font-semibold">
+                {mode === "signin" ? "Welcome back" : "Create your account"}
+              </h1>
+              <p className="mt-1 mb-6 text-sm text-muted-foreground">
+                {mode === "signin"
+                  ? "Sign in to your marketing workspace."
+                  : "Start with a free brand awareness audit."}
+              </p>
+
               <Button
                 type="button"
                 variant="outline"
@@ -124,11 +143,24 @@ function AuthPage() {
                     <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Maria Santos" required />
                   </div>
                 )}
-                <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@business.com" required /></div>
-                <div className="space-y-2"><Label htmlFor="password">Password</Label><Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" minLength={6} required /></div>
-                <Button type="submit" className="w-full" disabled={busy}>{busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}</Button>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@business.com" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" minLength={6} required />
+                </div>
+                <Button type="submit" className="w-full" disabled={busy}>
+                  {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+                </Button>
               </form>
-              <button type="button" onClick={() => setMode(mode === "signin" ? "signup" : "signin")} className="mt-5 w-full text-center text-sm text-muted-foreground underline-offset-4 hover:underline">
+
+              <button
+                type="button"
+                onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+                className="mt-5 w-full text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
+              >
                 {mode === "signin" ? "New here? Create an account" : "Already have an account? Sign in"}
               </button>
             </>
