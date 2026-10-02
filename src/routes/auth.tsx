@@ -36,6 +36,22 @@ function AuthPage() {
     if (!loading && user) navigate({ to: "/dashboard" });
   }, [loading, user, navigate]);
 
+  async function handleGoogleAuth() {
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to continue with Google");
+      setBusy(false);
+    }
+  }
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
@@ -79,6 +95,28 @@ function AuthPage() {
             <>
               <h1 className="font-display text-xl font-semibold">{mode === "signin" ? "Welcome back" : "Create your account"}</h1>
               <p className="mt-1 mb-6 text-sm text-muted-foreground">{mode === "signin" ? "Sign in to your marketing workspace." : "Start with a free brand awareness audit."}</p>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleGoogleAuth}
+                disabled={busy}
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
+                  <path fill="currentColor" d="M21.35 12.2c0-.72-.06-1.42-.18-2.09H12v3.96h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.26Z" />
+                  <path fill="currentColor" d="M12 21.5c2.63 0 4.84-.87 6.45-2.35l-3.14-2.45c-.87.58-1.98.93-3.31.93-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.74 9.74 0 0 0 12 21.5Z" />
+                  <path fill="currentColor" d="M6.54 13.6A5.86 5.86 0 0 1 6.23 12c0-.56.1-1.1.31-1.6V7.87H3.3A9.5 9.5 0 0 0 2.5 12c0 1.53.37 2.98.8 4.13l3.24-2.53Z" />
+                  <path fill="currentColor" d="M12 6.37c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.84 3.42 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.7 5.37l3.24 2.53C7.31 8.09 9.46 6.37 12 6.37Z" />
+                </svg>
+                Continue with Google
+              </Button>
+
+              <div className="my-5 flex items-center gap-3">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-xs text-muted-foreground">or continue with email</span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 {mode === "signup" && (
                   <div className="space-y-2">
