@@ -50,6 +50,8 @@ export function useSubscription() {
     queryKey: ["subscription", user?.id],
     enabled: !!user,
     staleTime: 30_000,
+    // Don't hold the whole workspace on "Loading…" while retrying; fall back to the free plan on failure.
+    retry: 1,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("subscriptions" as never)
