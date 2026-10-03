@@ -2,8 +2,8 @@ import { defineConfig } from "nitro";
 
 export default defineConfig({
   prerender: {
-    routes: ["/", "/inquiry"],
-    ignore: ["/404.html"],
+    routes: ["/"],
+    crawlLinks: false,
     failOnError: true,
   },
 });
