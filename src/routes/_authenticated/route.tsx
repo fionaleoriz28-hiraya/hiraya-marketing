@@ -20,6 +20,7 @@ import { useIsAgent } from "@/lib/chat";
 import { useSubscription, canAccess, type Feature } from "@/lib/entitlements";
 import { FeatureGate } from "@/components/feature-gate";
 import { WelcomeTour } from "@/components/WelcomeTour";
+import { AgentReplyNotifier } from "@/components/AgentReplyNotifier";
 
 export const Route = createFileRoute("/_authenticated")({ component: AuthenticatedLayout });
 
@@ -99,6 +100,7 @@ function AuthenticatedLayout() {
         </div>
       </nav>
       <WelcomeTour userId={user.id} />
+      {!isAgent && <AgentReplyNotifier />}
     </div>
   );
 }
