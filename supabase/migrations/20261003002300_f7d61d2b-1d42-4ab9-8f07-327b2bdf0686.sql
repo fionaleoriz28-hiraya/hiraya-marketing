@@ -1,0 +1,2 @@
+CREATE POLICY "agents write system notes" ON public.chat_messages FOR INSERT TO authenticated
+WITH CHECK (sender = 'system' AND sender_id = auth.uid() AND public.has_role(auth.uid(), 'agent'::app_role));
