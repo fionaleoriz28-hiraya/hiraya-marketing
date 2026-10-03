@@ -1,0 +1,30 @@
+{
+  "manifest_version": 2,
+  "name": "Hiraya Marketing — From Vision to Visibility",
+  "version": "1.0.0",
+  "description": "A clean, minimal Microsoft Edge theme inspired by Hiraya Marketing.",
+  "theme": {
+    "colors": {
+      "frame": [245, 247, 250],
+      "frame_inactive": [232, 236, 242],
+      "toolbar": [255, 255, 255],
+      "tab_text": [45, 52, 64],
+      "tab_background_text": [92, 101, 116],
+      "bookmark_text": [45, 52, 64],
+      "ntp_background": [250, 248, 244],
+      "ntp_text": [45, 52, 64],
+      "ntp_link": [93, 117, 110],
+      "ntp_section": [255, 255, 255],
+      "button_background": [230, 239, 235]
+    },
+    "tints": {
+      "buttons": [0.46, 0.58, 0.54],
+      "frame": [0.46, 0.58, 0.54],
+      "background_tab": [0.46, 0.58, 0.54]
+    },
+    "properties": {
+      "ntp_toolbar_overlay": "true",
+      "ntp_brightness": 1.0
+    }
+  }
+}
