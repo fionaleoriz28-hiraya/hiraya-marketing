@@ -58,7 +58,7 @@ function AuthenticatedLayout() {
     <div className="min-h-screen bg-background lg:flex">
       <aside className="hidden w-60 shrink-0 border-r border-border bg-sidebar px-4 py-6 lg:block">
         <Link to="/dashboard" className="block px-2" aria-label="Hiraya Marketing">
-          <img src="/hiraya-logo.svg" alt="Hiraya Marketing" className="h-20 w-20 object-contain" />
+          <img src={`${import.meta.env.BASE_URL}hiraya-logo.svg`} alt="Hiraya Marketing" className="h-20 w-20 object-contain" />
         </Link>
         <nav className="mt-6 space-y-1">
           {visibleNav.map((item) => (
@@ -79,7 +79,7 @@ function AuthenticatedLayout() {
       <div className="flex-1 pb-24 lg:pb-0">
         <header className="flex items-center justify-between border-b border-border px-5 py-3 lg:hidden">
           <Link to="/dashboard" aria-label="Hiraya Marketing">
-            <img src="/hiraya-logo.svg" alt="Hiraya Marketing" className="h-14 w-14 object-contain" />
+            <img src={`${import.meta.env.BASE_URL}hiraya-logo.svg`} alt="Hiraya Marketing" className="h-14 w-14 object-contain" />
           </Link>
           <Button variant="ghost" size="sm" onClick={() => signOut().then(() => navigate({ to: "/" }))}><LogOut className="size-4" /></Button>
         </header>
