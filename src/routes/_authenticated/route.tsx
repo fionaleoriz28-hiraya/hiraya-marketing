@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { useIsAgent } from "@/lib/chat";
 import { useSubscription, canAccess, type Feature } from "@/lib/entitlements";
 import { FeatureGate } from "@/components/feature-gate";
+import { WelcomeTour } from "@/components/WelcomeTour";
 
 export const Route = createFileRoute("/_authenticated")({ component: AuthenticatedLayout });
 
@@ -97,6 +98,7 @@ function AuthenticatedLayout() {
           ))}
         </div>
       </nav>
+      <WelcomeTour userId={user.id} />
     </div>
   );
 }
