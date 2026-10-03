@@ -16,7 +16,7 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Sign in or create a Hiraya Marketing account to audit your brand, plan content and track growth." },
       { property: "og:title", content: "Sign in — Hiraya Marketing" },
       { property: "og:description", content: "Your small business marketing workspace: audits, content plans, strategy and ads." },
-      { property: "og:image", content: "/hiraya-logo.svg" },
+      { property: "og:image", content: `${import.meta.env.BASE_URL}hiraya-logo.svg` },
       { property: "og:image:alt", content: "Hiraya Marketing — From Vision to Visibility" },
     ],
   }),
@@ -86,7 +86,7 @@ function AuthPage() {
     <main className="flex min-h-screen items-center justify-center bg-background px-5 py-12">
       <div className="w-full max-w-md">
         <Link to="/" className="mb-8 flex flex-col items-center text-center">
-          <img src="/hiraya-logo.svg" alt="Hiraya Marketing" className="mb-3 h-28 w-28 object-contain sm:h-32 sm:w-32" />
+          <img src={`${import.meta.env.BASE_URL}hiraya-logo.svg`} alt="Hiraya Marketing" className="mb-3 h-28 w-28 object-contain sm:h-32 sm:w-32" />
           <span className="text-xs tracking-[0.2em] text-muted-foreground uppercase">From vision to visibility</span>
         </Link>
 
