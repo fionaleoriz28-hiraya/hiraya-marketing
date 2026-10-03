@@ -37,7 +37,7 @@ export const Route = createFileRoute("/")({
         content:
           "Digital marketing support for Filipino small businesses, startups and entrepreneurs.",
       },
-      { property: "og:image", content: "/hiraya-logo.svg" },
+      { property: "og:image", content: `${import.meta.env.BASE_URL}hiraya-logo.svg` },
       { property: "og:image:alt", content: "Hiraya Marketing — From Vision to Visibility" },
     ],
   }),
@@ -105,7 +105,7 @@ function Landing() {
       <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
           <a href="#top" aria-label="Hiraya Marketing home" className="shrink-0">
-            <img src="/hiraya-logo.svg" alt="Hiraya Marketing" className="h-12 w-12 object-contain" />
+            <img src={`${import.meta.env.BASE_URL}hiraya-logo.svg`} alt="Hiraya Marketing" className="h-12 w-12 object-contain" />
           </a>
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex" aria-label="Primary navigation">
             <a href="#trial" className="transition-colors hover:text-foreground">6-Week Trial</a>
@@ -436,7 +436,7 @@ function Landing() {
       <footer className="border-t border-border">
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <img src="/hiraya-logo.svg" alt="Hiraya Marketing" className="h-12 w-12 object-contain" />
+            <img src={`${import.meta.env.BASE_URL}hiraya-logo.svg`} alt="Hiraya Marketing" className="h-12 w-12 object-contain" />
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
               From Vision to Visibility. Digital marketing support for businesses building what comes next.
             </p>
