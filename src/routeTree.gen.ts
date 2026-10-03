@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InquiryRouteImport } from './routes/inquiry'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAgentRouteImport } from './routes/_authenticated/agent'
@@ -27,6 +28,11 @@ import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InquiryRoute = InquiryRouteImport.update({
+  id: '/inquiry',
+  path: '/inquiry',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -97,6 +103,7 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/inquiry': typeof InquiryRoute
   '/auth': typeof AuthRouteWithChildren
   '/agent': typeof AuthenticatedAgentRoute
   '/assistant': typeof AuthenticatedAssistantRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/inquiry': typeof InquiryRoute
   '/auth': typeof AuthRouteWithChildren
   '/agent': typeof AuthenticatedAgentRoute
   '/assistant': typeof AuthenticatedAssistantRoute
@@ -126,6 +134,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
 }
 export interface FileRoutesById {
+  '/inquiry': typeof InquiryRoute
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
@@ -146,6 +155,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/inquiry'
     | '/auth'
     | '/agent'
     | '/assistant'
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/inquiry'
     | '/auth'
     | '/agent'
     | '/assistant'
@@ -176,6 +187,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/inquiry'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/agent'
@@ -193,6 +205,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  InquiryRoute: typeof InquiryRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
 }
@@ -204,6 +217,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inquiry': {
+      id: '/inquiry'
+      path: '/inquiry'
+      fullPath: '/inquiry'
+      preLoaderRoute: typeof InquiryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -341,6 +361,7 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  InquiryRoute: InquiryRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
 }
