@@ -7,7 +7,7 @@ export const getRouter = () => {
 
   const router = createRouter({
     routeTree,
-    basepath: import.meta.env.BASE_URL === "/" ? "/" : import.meta.env.BASE_URL.replace(/\/$/, ""),
+    basepath: import.meta.env.SSR ? "/" : (import.meta.env.BASE_URL === "/" ? "/" : import.meta.env.BASE_URL.replace(/\/$/, "")),
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
