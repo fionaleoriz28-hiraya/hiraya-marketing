@@ -49,7 +49,7 @@ export function WelcomeTour({ userId }: { userId: string }) {
       if (localStorage.getItem(tourKey(userId)) === "pending") {
         setStep(0);
         setIsOpen(true);
-        navigate({ to: STEPS[0].to });
+        navigate({ to: "/dashboard" });
       }
     };
     check();
@@ -65,10 +65,10 @@ export function WelcomeTour({ userId }: { userId: string }) {
 
   function goTo(index: number) {
     setStep(index);
-    navigate({ to: STEPS[index].to });
+    navigate({ to: STEPS[index]?.to ?? "/dashboard" });
   }
 
-  const current = STEPS[step];
+  const current = STEPS[step] ?? STEPS[0]!;
   const isLast = step === STEPS.length - 1;
 
   return (
