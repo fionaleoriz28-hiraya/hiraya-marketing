@@ -104,7 +104,7 @@ function AuthCallbackPage() {
     <main className="flex min-h-screen items-center justify-center bg-background px-5 py-12">
       <div className="card-soft w-full max-w-md p-6 text-center sm:p-8">
         <img
-          src="/hiraya-logo.svg"
+          src={`${import.meta.env.BASE_URL}hiraya-logo.svg`}
           alt="Hiraya Marketing"
           className="mx-auto mb-5 h-20 w-20 object-contain"
         />
