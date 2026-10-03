@@ -155,6 +155,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/inquiry'
     | '/auth'
     | '/agent'
     | '/assistant'
@@ -170,6 +171,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/inquiry'
     | '/auth'
     | '/agent'
     | '/assistant'
