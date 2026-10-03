@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { startWelcomeTour } from "@/components/WelcomeTour";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
@@ -86,6 +87,10 @@ function ProfilePage() {
     }
     toast.success("Business profile saved");
     queryClient.invalidateQueries({ queryKey: ["business"] });
+    if (!business && localStorage.getItem(`hiraya-tour:${user.id}`) !== "done") {
+      startWelcomeTour(user.id);
+      window.dispatchEvent(new Event("hiraya-tour-start"));
+    }
   }
 
   return (
