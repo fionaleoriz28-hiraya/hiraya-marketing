@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InquiryRouteImport } from './routes/inquiry'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAgentRouteImport } from './routes/_authenticated/agent'
@@ -27,6 +28,11 @@ import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InquiryRoute = InquiryRouteImport.update({
+  id: '/inquiry',
+  path: '/inquiry',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -97,6 +103,7 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/inquiry': typeof InquiryRoute
   '/auth': typeof AuthRouteWithChildren
   '/agent': typeof AuthenticatedAgentRoute
   '/assistant': typeof AuthenticatedAssistantRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/inquiry': typeof InquiryRoute
   '/auth': typeof AuthRouteWithChildren
   '/agent': typeof AuthenticatedAgentRoute
   '/assistant': typeof AuthenticatedAssistantRoute
@@ -126,6 +134,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
 }
 export interface FileRoutesById {
+  '/inquiry': typeof InquiryRoute
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
