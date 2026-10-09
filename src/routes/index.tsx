@@ -113,9 +113,16 @@ function Landing() {
             <a href="#how-it-works" className="transition-colors hover:text-foreground">How it works</a>
             <a href="#about" className="transition-colors hover:text-foreground">About</a>
           </nav>
-          <Button asChild size="sm">
-            <Link to="/inquiry">Join the 6-Week Trial</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            {!user && (
+              <Button asChild size="sm" variant="ghost" className="hidden sm:inline-flex">
+                <Link to="/auth" search={{ mode: "signup" }}>Sign up</Link>
+              </Button>
+            )}
+            <Button asChild size="sm">
+              <Link to="/inquiry">Join the 6-Week Trial</Link>
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -144,6 +151,9 @@ function Landing() {
                     Join the 6-Week Trial
                     <ArrowRight className="ml-1 size-4" />
                   </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  {user ? <Link to="/dashboard">Open workspace</Link> : <Link to="/auth" search={{ mode: "signup" }}>Create free account</Link>}
                 </Button>
                 <Button asChild size="lg" variant="secondary">
                   <a href="#services">Explore services</a>
