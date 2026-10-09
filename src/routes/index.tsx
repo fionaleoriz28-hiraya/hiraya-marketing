@@ -113,9 +113,16 @@ function Landing() {
             <a href="#how-it-works" className="transition-colors hover:text-foreground">How it works</a>
             <a href="#about" className="transition-colors hover:text-foreground">About</a>
           </nav>
-          <Button asChild size="sm">
-            <Link to="/inquiry">Join the 6-Week Trial</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            {!user && (
+              <Button asChild size="sm" variant="ghost" className="hidden sm:inline-flex">
+                <Link to="/auth" search={{ mode: "signup" }}>Sign up</Link>
+              </Button>
+            )}
+            <Button asChild size="sm">
+              <Link to="/inquiry">Join the 6-Week Trial</Link>
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -144,6 +151,9 @@ function Landing() {
                     Join the 6-Week Trial
                     <ArrowRight className="ml-1 size-4" />
                   </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  {user ? <Link to="/dashboard">Open workspace</Link> : <Link to="/auth" search={{ mode: "signup" }}>Create free account</Link>}
                 </Button>
                 <Button asChild size="lg" variant="secondary">
                   <a href="#services">Explore services</a>
@@ -252,11 +262,11 @@ function Landing() {
           </div>
 
           <div className="mt-8 grid gap-4 rounded-2xl border border-border bg-secondary/25 p-6 sm:grid-cols-3">
-            {[
+            {([
               [Users, "Collaborative", "We learn about your business before deciding what it needs."],
               [Lightbulb, "Practical", "The goal is useful marketing you can actually keep doing."],
               [BadgeCheck, "Transparent", "Package fit and pricing are discussed directly during consultation."],
-            ].map(([Icon, title, body]) => (
+            ] as const).map(([Icon, title, body]) => (
               <div key={title as string} className="flex gap-3">
                 <Icon className="mt-0.5 size-5 shrink-0 text-primary" />
                 <div>
@@ -396,12 +406,12 @@ function Landing() {
                 </h2>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                {[
+                {([
                   [Search, "1. Inquire", "Tell Hiraya about your business and what you need."],
                   [MessageCircle, "2. Consult", "Discuss goals, priorities and the right service or trial fit."],
                   [CalendarCheck2, "3. Agree & pay", "Review the proposal, agreement and payment arrangements before work begins."],
                   [Users, "4. Onboard", "Complete your business profile and give Hiraya the context needed to do good work."],
-                ].map(([Icon, title, body]) => (
+                ] as const).map(([Icon, title, body]) => (
                   <div key={title as string} className="rounded-xl border border-border bg-card p-4">
                     <Icon className="size-5 text-primary" />
                     <p className="mt-3 text-sm font-semibold">{title as string}</p>

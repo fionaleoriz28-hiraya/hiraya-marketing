@@ -20,13 +20,16 @@ export const Route = createFileRoute("/auth")({
       { property: "og:image:alt", content: "Hiraya Marketing — From Vision to Visibility" },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>): { mode?: "signin" | "signup" } =>
+    search["mode"] === "signup" ? { mode: "signup" } : search["mode"] === "signin" ? { mode: "signin" } : {},
   component: AuthPage,
 });
 
 function AuthPage() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const search = Route.useSearch();
+  const [mode, setMode] = useState<"signin" | "signup">(search.mode ?? "signin");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
