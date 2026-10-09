@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+// @ts-expect-error bun:test types are provided by the Bun runtime
+import { describe, expect, it } from "bun:test";
 import { validateMeetingSlot } from "./meetingRules";
 
 const now = new Date("2026-10-09T00:00:00Z"); // Fri 8:00 AM Manila
