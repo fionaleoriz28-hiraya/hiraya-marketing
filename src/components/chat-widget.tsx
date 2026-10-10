@@ -5,6 +5,7 @@ import { Headset, MessageCircle, Send, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { ChatThread } from "@/components/chat-thread";
+import { TalkToPersonDialog } from "@/components/TalkToPersonDialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { askAssistant } from "@/lib/ai.functions";
@@ -14,6 +15,7 @@ import { useMessages, useMyConversation, useSendMessage, useSetMode } from "@/li
 export function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [personOpen, setPersonOpen] = useState(false);
   const [thinking, setThinking] = useState(false);
 
   const { data: business } = useBusiness();
@@ -150,7 +152,7 @@ export function ChatWidget() {
               {withAgent ? (
                 <span className="text-xs text-muted-foreground">Talking with a specialist</span>
               ) : (
-                <Button variant="ghost" size="sm" onClick={() => void talkToPerson()}>
+                <Button variant="ghost" size="sm" onClick={() => setPersonOpen(true)}>
                   <Headset className="mr-2 h-3.5 w-3.5" />
                   Talk to a person
                 </Button>
@@ -164,6 +166,7 @@ export function ChatWidget() {
           </div>
         </div>
       )}
+      <TalkToPersonDialog open={personOpen} onOpenChange={setPersonOpen} onChatNow={() => void talkToPerson()} />
     </>
   );
 }
