@@ -97,21 +97,32 @@ export const listSpecialistCalendar = createServerFn({ method: "GET" })
     const result = await gateway(`/calendars/primary/events?${params.toString()}`, { method: "GET" });
     const items = (result["items"] as Array<Record<string, unknown>> | undefined) ?? [];
 
-    return items.map((item) => {
-      const start = item["start"] as { date?: string; dateTime?: string } | undefined;
-      const end = item["end"] as { date?: string; dateTime?: string } | undefined;
-      const summary = typeof item["summary"] === "string" ? item["summary"] : "(No title)";
-      const attendees = (item["attendees"] as Array<{ email?: string; self?: boolean }> | undefined) ?? [];
-      return {
-        id: String(item["id"]),
-        title: summary.startsWith(BOOKING_PREFIX) ? summary.slice(BOOKING_PREFIX.length) : summary,
-        start: start?.dateTime ?? start?.date ?? "",
-        end: end?.dateTime ?? end?.date ?? "",
-        isAllDay: !start?.dateTime,
-        isBooking: summary.startsWith(BOOKING_PREFIX),
-        meetLink: typeof item["hangoutLink"] === "string" ? item["hangoutLink"] : null,
-        eventLink: typeof item["htmlLink"] === "string" ? item["htmlLink"] : null,
-        attendee: attendees.find((a) => !a.self)?.email ?? null,
-      };
-    });
+    const maskEmail = (email: string | undefined): string | null => {
+      if (!email) return null;
+      const [name, domain] = email.split("@");
+      if (!domain) return "Client";
+      return `${name.slice(0, 2)}•••@${domain}`;
+    };
+
+    // Discretion: only Hiraya client bookings are returned; personal calendar
+    // entries never leave the server, and client emails are masked.
+    return items
+      .filter((item) => typeof item["summary"] === "string" && (item["summary"] as string).startsWith(BOOKING_PREFIX))
+      .map((item) => {
+        const start = item["start"] as { date?: string; dateTime?: string } | undefined;
+        const end = item["end"] as { date?: string; dateTime?: string } | undefined;
+        const summary = item["summary"] as string;
+        const attendees = (item["attendees"] as Array<{ email?: string; self?: boolean }> | undefined) ?? [];
+        return {
+          id: String(item["id"]),
+          title: summary.slice(BOOKING_PREFIX.length),
+          start: start?.dateTime ?? start?.date ?? "",
+          end: end?.dateTime ?? end?.date ?? "",
+          isAllDay: !start?.dateTime,
+          isBooking: true,
+          meetLink: typeof item["hangoutLink"] === "string" ? item["hangoutLink"] : null,
+          eventLink: typeof item["htmlLink"] === "string" ? item["htmlLink"] : null,
+          attendee: maskEmail(attendees.find((a) => !a.self)?.email),
+        };
+      });
   });
