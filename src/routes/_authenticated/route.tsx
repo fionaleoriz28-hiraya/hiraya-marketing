@@ -43,7 +43,7 @@ function AuthenticatedLayout() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const requiredFeature: Feature | null = pathname.startsWith("/engagement") ? "engagement" : pathname.startsWith("/planner") ? "planner" : pathname.startsWith("/strategy") ? "strategy" : pathname.startsWith("/assistant") ? "assistant" : pathname.startsWith("/agent") ? (isAgent ? null : "live-agent") : null;
-  const visibleNav = [...nav.filter((item) => !("feature" in item) || canAccess(plan, item.feature)), ...(isAgent ? [{ to: "/agent" as const, label: "Live Rep", icon: MessageCircle }] : [])];
+  const visibleNav = [...nav.filter((item) => !("feature" in item) || canAccess(plan, item.feature)), ...(isAgent ? [{ to: "/specialist" as const, label: "Specialist", icon: MessageCircle }, { to: "/agent" as const, label: "Live Rep", icon: MessageCircle }] : [])];
 
 
   useEffect(() => {

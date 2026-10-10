@@ -70,3 +70,48 @@ export const bookSpecialistMeeting = createServerFn({ method: "POST" })
       meetLink: typeof event["hangoutLink"] === "string" ? event["hangoutLink"] : null,
     };
   });
+
+export type CalendarItem = {
+  id: string;
+  title: string;
+  start: string;
+  end: string;
+  isAllDay: boolean;
+  isBooking: boolean;
+  meetLink: string | null;
+  eventLink: string | null;
+  attendee: string | null;
+};
+
+const BOOKING_PREFIX = "Hiraya specialist meeting: ";
+
+export const listSpecialistCalendar = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<CalendarItem[]> => {
+    const { data: isAgent, error } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "agent" });
+    if (error || !isAgent) throw new Error("Only Hiraya specialists can see the team calendar.");
+
+    const now = new Date();
+    const later = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const params = new URLSearchParams({ timeMin: now.toISOString(), timeMax: later.toISOString(), singleEvents: "true", orderBy: "startTime", maxResults: "100" });
+    const result = await gateway(`/calendars/primary/events?${params.toString()}`, { method: "GET" });
+    const items = (result["items"] as Array<Record<string, unknown>> | undefined) ?? [];
+
+    return items.map((item) => {
+      const start = item["start"] as { date?: string; dateTime?: string } | undefined;
+      const end = item["end"] as { date?: string; dateTime?: string } | undefined;
+      const summary = typeof item["summary"] === "string" ? item["summary"] : "(No title)";
+      const attendees = (item["attendees"] as Array<{ email?: string; self?: boolean }> | undefined) ?? [];
+      return {
+        id: String(item["id"]),
+        title: summary.startsWith(BOOKING_PREFIX) ? summary.slice(BOOKING_PREFIX.length) : summary,
+        start: start?.dateTime ?? start?.date ?? "",
+        end: end?.dateTime ?? end?.date ?? "",
+        isAllDay: !start?.dateTime,
+        isBooking: summary.startsWith(BOOKING_PREFIX),
+        meetLink: typeof item["hangoutLink"] === "string" ? item["hangoutLink"] : null,
+        eventLink: typeof item["htmlLink"] === "string" ? item["htmlLink"] : null,
+        attendee: attendees.find((a) => !a.self)?.email ?? null,
+      };
+    });
+  });
