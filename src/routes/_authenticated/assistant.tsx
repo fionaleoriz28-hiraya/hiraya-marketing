@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { ChatThread } from "@/components/chat-thread";
 import { PageHeader } from "@/components/page-header";
+import { TalkToPersonDialog } from "@/components/TalkToPersonDialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { askAssistant } from "@/lib/ai.functions";
@@ -56,6 +57,7 @@ function AssistantPage() {
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const [showAgentForm, setShowAgentForm] = useState(false);
+  const [personOpen, setPersonOpen] = useState(false);
   const [topic, setTopic] = useState("");
   const [preferredTime, setPreferredTime] = useState("");
   const [contact, setContact] = useState("");
@@ -184,7 +186,7 @@ function AssistantPage() {
               Back to AI answers
             </Button>
           ) : (
-            <Button variant="secondary" size="sm" onClick={() => setShowAgentForm(true)} disabled={setMode.isPending || !canUseLiveRep}>
+            <Button variant="secondary" size="sm" onClick={() => setPersonOpen(true)} disabled={setMode.isPending || !canUseLiveRep}>
               <Headset className="size-4" /> Talk to a person
             </Button>
           )}
@@ -284,6 +286,7 @@ function AssistantPage() {
           Specialists reply during business hours. Anything you write now will be waiting for them.
         </p>
       )}
+      <TalkToPersonDialog open={personOpen} onOpenChange={setPersonOpen} onChatNow={() => setShowAgentForm(true)} />
     </div>
   );
 }
