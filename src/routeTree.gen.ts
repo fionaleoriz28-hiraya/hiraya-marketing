@@ -21,6 +21,7 @@ import { Route as AuthenticatedEngagementRouteImport } from './routes/_authentic
 import { Route as AuthenticatedGrowthRouteImport } from './routes/_authenticated/growth'
 import { Route as AuthenticatedPlannerRouteImport } from './routes/_authenticated/planner'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedSpecialistRouteImport } from './routes/_authenticated/specialist'
 import { Route as AuthenticatedStrategyRouteImport } from './routes/_authenticated/strategy'
 import { Route as AuthenticatedSubscriptionRouteImport } from './routes/_authenticated/subscription'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
@@ -84,6 +85,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSpecialistRoute = AuthenticatedSpecialistRouteImport.update({
+  id: '/specialist',
+  path: '/specialist',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedStrategyRoute = AuthenticatedStrategyRouteImport.update({
   id: '/strategy',
   path: '/strategy',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/growth': typeof AuthenticatedGrowthRoute
   '/planner': typeof AuthenticatedPlannerRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/specialist': typeof AuthenticatedSpecialistRoute
   '/strategy': typeof AuthenticatedStrategyRoute
   '/subscription': typeof AuthenticatedSubscriptionRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/growth': typeof AuthenticatedGrowthRoute
   '/planner': typeof AuthenticatedPlannerRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/specialist': typeof AuthenticatedSpecialistRoute
   '/strategy': typeof AuthenticatedStrategyRoute
   '/subscription': typeof AuthenticatedSubscriptionRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/_authenticated/growth': typeof AuthenticatedGrowthRoute
   '/_authenticated/planner': typeof AuthenticatedPlannerRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/specialist': typeof AuthenticatedSpecialistRoute
   '/_authenticated/strategy': typeof AuthenticatedStrategyRoute
   '/_authenticated/subscription': typeof AuthenticatedSubscriptionRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -165,6 +174,7 @@ export interface FileRouteTypes {
     | '/growth'
     | '/planner'
     | '/profile'
+    | '/specialist'
     | '/strategy'
     | '/subscription'
     | '/auth/callback'
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
     | '/growth'
     | '/planner'
     | '/profile'
+    | '/specialist'
     | '/strategy'
     | '/subscription'
     | '/auth/callback'
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/_authenticated/growth'
     | '/_authenticated/planner'
     | '/_authenticated/profile'
+    | '/_authenticated/specialist'
     | '/_authenticated/strategy'
     | '/_authenticated/subscription'
     | '/auth/callback'
@@ -296,6 +308,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/specialist': {
+      id: '/_authenticated/specialist'
+      path: '/specialist'
+      fullPath: '/specialist'
+      preLoaderRoute: typeof AuthenticatedSpecialistRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/strategy': {
       id: '/_authenticated/strategy'
       path: '/strategy'
@@ -329,6 +348,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGrowthRoute: typeof AuthenticatedGrowthRoute
   AuthenticatedPlannerRoute: typeof AuthenticatedPlannerRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedSpecialistRoute: typeof AuthenticatedSpecialistRoute
   AuthenticatedStrategyRoute: typeof AuthenticatedStrategyRoute
   AuthenticatedSubscriptionRoute: typeof AuthenticatedSubscriptionRoute
 }
@@ -342,6 +362,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGrowthRoute: AuthenticatedGrowthRoute,
   AuthenticatedPlannerRoute: AuthenticatedPlannerRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedSpecialistRoute: AuthenticatedSpecialistRoute,
   AuthenticatedStrategyRoute: AuthenticatedStrategyRoute,
   AuthenticatedSubscriptionRoute: AuthenticatedSubscriptionRoute,
 }

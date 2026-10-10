@@ -51,7 +51,7 @@ function SpecialistDashboard() {
   const calendar = useQuery({ queryKey: ["specialist-calendar"], queryFn: () => fetchCalendar(), enabled: !!isAgent, refetchInterval: 60_000 });
 
   if (roleLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
-  if (!isAgent) return <EmptyState title="Specialists only" description="Ask an administrator to add you as a Hiraya specialist." />;
+  if (!isAgent) return <EmptyState>Specialists only. Ask an administrator to add you as a Hiraya specialist.</EmptyState>;
 
   const pending = (inbox.data ?? []).filter((c) => !c.agent_id);
   const events = calendar.data ?? [];
