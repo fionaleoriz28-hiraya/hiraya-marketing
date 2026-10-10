@@ -101,7 +101,7 @@ export const listSpecialistCalendar = createServerFn({ method: "GET" })
       if (!email) return null;
       const [name, domain] = email.split("@");
       if (!domain) return "Client";
-      return `${name.slice(0, 2)}•••@${domain}`;
+      return `${(name ?? "").slice(0, 2)}•••@${domain}`;
     };
 
     // Discretion: only Hiraya client bookings are returned; personal calendar
