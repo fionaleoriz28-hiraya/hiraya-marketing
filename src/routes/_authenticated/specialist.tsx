@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CalendarDays, Headset, Video } from "lucide-react";
+import { Headset, Video } from "lucide-react";
 
 import { EmptyState, PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/specialist")({
   head: () => ({
     meta: [
       { title: "Specialist dashboard — Hiraya Marketing" },
-      { name: "description", content: "Waiting chats, booked client meetings and the specialist calendar in one place." },
+      { name: "description", content: "Waiting chats and booked client meetings for Hiraya specialists." },
       { property: "og:title", content: "Specialist dashboard — Hiraya Marketing" },
       { property: "og:description", content: "Everything a Hiraya specialist needs for the day." },
       { property: "og:type", content: "website" },
@@ -54,13 +54,11 @@ function SpecialistDashboard() {
   if (!isAgent) return <EmptyState>Specialists only. Ask an administrator to add you as a Hiraya specialist.</EmptyState>;
 
   const pending = (inbox.data ?? []).filter((c) => !c.agent_id);
-  const events = calendar.data ?? [];
-  const bookings = events.filter((e) => e.isBooking);
-  const others = events.filter((e) => !e.isBooking);
+  const bookings = calendar.data ?? [];
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Specialist dashboard" subtitle="Waiting chats, client meetings and your calendar for the next 14 days." />
+      <PageHeader title="Specialist dashboard" subtitle="Waiting chats and client meetings booked with Hiraya specialists." />
 
       <section className="card-soft p-5">
         <div className="flex items-center justify-between gap-3">
@@ -79,25 +77,15 @@ function SpecialistDashboard() {
         </div>
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <section className="card-soft p-5">
-          <h2 className="flex items-center gap-2 font-display text-base font-semibold"><Video className="size-4 text-primary" />Booked client meetings ({bookings.length})</h2>
-          <div className="mt-3 space-y-2">
-            {calendar.isLoading && <p className="text-sm text-muted-foreground">Loading calendar…</p>}
-            {calendar.isError && <p className="text-sm text-destructive">We couldn't load the calendar. Please try again shortly.</p>}
-            {calendar.isSuccess && bookings.length === 0 && <p className="text-sm text-muted-foreground">No client meetings booked yet.</p>}
-            {bookings.map((e) => <EventRow key={e.id} item={e} />)}
-          </div>
-        </section>
-        <section className="card-soft p-5">
-          <h2 className="flex items-center gap-2 font-display text-base font-semibold"><CalendarDays className="size-4 text-primary" />My calendar</h2>
-          <div className="mt-3 space-y-2">
-            {calendar.isLoading && <p className="text-sm text-muted-foreground">Loading calendar…</p>}
-            {calendar.isSuccess && others.length === 0 && <p className="text-sm text-muted-foreground">Nothing else on your calendar.</p>}
-            {others.map((e) => <EventRow key={e.id} item={e} />)}
-          </div>
-        </section>
-      </div>
+      <section className="card-soft p-5">
+        <h2 className="flex items-center gap-2 font-display text-base font-semibold"><Video className="size-4 text-primary" />Booked client meetings ({bookings.length})</h2>
+        <div className="mt-3 space-y-2">
+          {calendar.isLoading && <p className="text-sm text-muted-foreground">Loading calendar…</p>}
+          {calendar.isError && <p className="text-sm text-destructive">We couldn't load the calendar. Please try again shortly.</p>}
+          {calendar.isSuccess && bookings.length === 0 && <p className="text-sm text-muted-foreground">No client meetings booked yet.</p>}
+          {bookings.map((e) => <EventRow key={e.id} item={e} />)}
+        </div>
+      </section>
     </div>
   );
 }
